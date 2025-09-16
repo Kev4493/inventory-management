@@ -1,0 +1,151 @@
+<script setup lang="ts">
+import { reactive } from 'vue'
+import { allItems } from '@/stores/inventoryStore.ts'
+import type { Item } from '@/types/item.ts'
+
+
+// Objekt für ein neu hinzuzufügendes Item
+const newItem = reactive<Omit<Item, 'id'>>({
+  name: '',
+  category: '',
+  location: '',
+  person: '',
+  purchaseDate: new Date().getFullYear(),
+  notes: ''
+});
+
+
+let nextId = 1;
+
+
+function handleSubmit() {
+  // 1. Neues Item ins Array kopieren
+  allItems.value.push({
+    id: nextId++,
+    ...newItem });
+
+  // 2. Debug-Ausgabe
+  console.log("📦 Alle Items:", allItems.value);
+
+  // 3. Formular leeren
+  Object.assign(newItem, {
+    name: '',
+    category: '',
+    location: '',
+    person: '',
+    purchaseDate: new Date().getFullYear(),
+    notes: '',
+  });
+}
+
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit" class="addItemForm">
+    <div>
+      <label for="itemName">Produktname:</label>
+      <input v-model="newItem.name" type="text" id="itemName" name="itemName" required />
+    </div>
+
+    <div>
+      <label for="category">Kategorie:</label>
+      <select v-model="newItem.category" id="category" name="category" required>
+        <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
+        <option value="Laptop">Laptop</option>
+        <option value="Bildschirm">Bildschirm</option>
+        <option value="Tastatur">Tastatur</option>
+        <option value="Maus">Maus</option>
+        <option value="Docking station">Docking station</option>
+        <option value="Headset">Headset</option>
+        <option value="Fernseher">Fernseher</option>
+        <option value="Kamera">Kamera</option>
+        <option value="Laptop Ständer">Laptop Ständer</option>
+        <option value="Beamer">Beamer</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="location">Standort:</label>
+      <select v-model="newItem.location" id="location" name="location" required>
+        <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
+        <option value="Messe Büro">Messe Büro</option>
+        <option value="GEOX Büro">GEOX Büro</option>
+        <option value="PM Büro">PM Büro</option>
+        <option value="GF Büro">GF Büro</option>
+        <option value="Kleines Büro">Kleines Büro</option>
+        <option value="Besprechungsraum">Besprechungsraum</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="person">Person:</label>
+      <select v-model="newItem.person" id="person" name="person" required>
+        <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
+        <option value="Kevin Wagner">Kevin Wagner</option>
+        <option value="Itay Krämer">Itay Krämer</option>
+        <option value="Camill Hauser">Camill Hauser</option>
+        <option value="Johannes Sommer">Johannes Sommer</option>
+        <option value="Benjamin Stiber">Benjamin Stiber</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="purchaseDate">Anschaffungsjahr:</label>
+      <input
+        type="number"
+        id="purchaseDate"
+        name="purchaseDate"
+        required
+        v-model="newItem.purchaseDate"
+      />
+    </div>
+
+    <div>
+      <label for="notes">Anmerkungen:</label>
+      <textarea v-model="newItem.notes" id="notes" name="notes" required></textarea>
+    </div>
+
+    <button type="submit">Item hinzufügen</button>
+  </form>
+</template>
+
+<style scoped lang="scss">
+.addItemForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+
+  label {
+    font-weight: bold;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  button {
+    padding: 0.5rem;
+    background-color: $brandYellowBG;
+    color: $mainBlackText;
+    border: none;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2rem;
+    cursor: pointer;
+    width: 200px;
+
+    &:hover {
+      background-color: #218838;
+    }
+  }
+}
+</style>
