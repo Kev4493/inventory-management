@@ -43,12 +43,12 @@ function handleSubmit() {
 <template>
   <form @submit.prevent="handleSubmit" class="addItemForm">
     <div>
-      <label for="itemName">Produktname:</label>
+      <label for="itemName">{{ $t('itemForm.label.productName') }}</label>
       <input v-model="newItem.name" type="text" id="itemName" name="itemName" required />
     </div>
 
     <div>
-      <label for="category">Kategorie:</label>
+      <label for="category">{{ $t('itemForm.label.category') }}</label>
       <select v-model="newItem.category" id="category" name="category" required>
         <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
         <option value="Laptop">Laptop</option>
@@ -65,7 +65,7 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="location">Standort:</label>
+      <label for="location">{{ $t('itemForm.label.location') }}</label>
       <select v-model="newItem.location" id="location" name="location" required>
         <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
         <option value="Messe Büro">Messe Büro</option>
@@ -78,7 +78,7 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="person">Person:</label>
+      <label for="person">{{ $t('itemForm.label.assigned') }}</label>
       <select v-model="newItem.person" id="person" name="person" required>
         <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
         <option value="Kevin Wagner">Kevin Wagner</option>
@@ -90,7 +90,7 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="purchaseDate">Anschaffungsjahr:</label>
+      <label for="purchaseDate">{{ $t('itemForm.label.purchaseDate') }}</label>
       <input
         type="number"
         id="purchaseDate"
@@ -101,7 +101,7 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="notes">Anmerkungen:</label>
+      <label for="notes">{{ $t('itemForm.label.notes') }}</label>
       <textarea v-model="newItem.notes" id="notes" name="notes" required></textarea>
     </div>
 

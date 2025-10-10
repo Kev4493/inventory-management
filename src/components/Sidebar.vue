@@ -17,13 +17,13 @@ function isActive(path: string) {
     <nav>
       <ul>
         <li :class="{ active: isActive('/') }">
-          <router-link to="/">Home</router-link>
+          <router-link to="/">{{ $t('sidebar.home') }}</router-link>
         </li>
         <li :class="{ active: isActive('/inventory') }">
-          <router-link to="/inventory">Inventar</router-link>
+          <router-link to="/inventory">{{ $t('sidebar.inventory') }}</router-link>
         </li>
         <li :class="{ active: isActive('/addItem') }">
-          <router-link to="/addItem">Item hinzufügen</router-link>
+          <router-link to="/addItem">{{ $t('sidebar.addItem') }}</router-link>
         </li>
       </ul>
     </nav>
