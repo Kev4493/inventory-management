@@ -43,14 +43,14 @@ function handleSubmit() {
 <template>
   <form @submit.prevent="handleSubmit" class="addItemForm">
     <div>
-      <label for="itemName">{{ $t('itemForm.label.productName') }}</label>
+      <label for="itemName">{{ $t('itemForm.label.productName') }}:</label>
       <input v-model="newItem.name" type="text" id="itemName" name="itemName" required />
     </div>
 
     <div>
-      <label for="category">{{ $t('itemForm.label.category') }}</label>
+      <label for="category">{{ $t('itemForm.label.category') }}:</label>
       <select v-model="newItem.category" id="category" name="category" required>
-        <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
+        <option value="" disabled>{{ $t('itemForm.placeholder.chooseCategory') }}</option>
         <option value="Laptop">Laptop</option>
         <option value="Bildschirm">Bildschirm</option>
         <option value="Tastatur">Tastatur</option>
@@ -65,9 +65,9 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="location">{{ $t('itemForm.label.location') }}</label>
+      <label for="location">{{ $t('itemForm.label.location') }}:</label>
       <select v-model="newItem.location" id="location" name="location" required>
-        <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
+        <option value="" disabled>{{ $t('itemForm.label.location') }}</option>
         <option value="Messe Büro">Messe Büro</option>
         <option value="GEOX Büro">GEOX Büro</option>
         <option value="PM Büro">PM Büro</option>
@@ -78,9 +78,9 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="person">{{ $t('itemForm.label.assigned') }}</label>
+      <label for="person">{{ $t('itemForm.label.assigned') }}:</label>
       <select v-model="newItem.person" id="person" name="person" required>
-        <option value="" disabled>Bitte wählen Sie eine Kategorie</option>
+        <option value="" disabled>{{ $t('itemForm.label.assigned') }}</option>
         <option value="Kevin Wagner">Kevin Wagner</option>
         <option value="Itay Krämer">Itay Krämer</option>
         <option value="Camill Hauser">Camill Hauser</option>
@@ -90,7 +90,7 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="purchaseDate">{{ $t('itemForm.label.purchaseDate') }}</label>
+      <label for="purchaseDate">{{ $t('itemForm.label.purchaseDate') }}:</label>
       <input
         type="number"
         id="purchaseDate"
@@ -101,7 +101,7 @@ function handleSubmit() {
     </div>
 
     <div>
-      <label for="notes">{{ $t('itemForm.label.notes') }}</label>
+      <label for="notes">{{ $t('itemForm.label.notes') }}:</label>
       <textarea v-model="newItem.notes" id="notes" name="notes" required></textarea>
     </div>
 

@@ -4,17 +4,17 @@ import { allItems } from '@/stores/inventoryStore.ts'
 
 <template>
   <div class="inventory">
-    <h1>Inventarliste</h1>
+    <h1>{{ $t('inventory.title') }}</h1>
 
     <table v-if="allItems.length > 0">
       <thead>
         <tr>
-          <th>Produktname</th>
-          <th>Kategorie</th>
-          <th>Standort</th>
-          <th>Person</th>
-          <th>Anschaffungsjahr</th>
-          <th>Anmerkung</th>
+          <th>{{ $t('itemForm.label.productName') }}</th>
+          <th>{{ $t('itemForm.label.category') }}</th>
+          <th>{{ $t('itemForm.label.location') }}:</th>
+          <th>{{ $t('itemForm.label.assigned') }}:</th>
+          <th>{{ $t('itemForm.label.purchaseDate') }}:</th>
+          <th>{{ $t('itemForm.label.notes') }}:</th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +29,7 @@ import { allItems } from '@/stores/inventoryStore.ts'
       </tbody>
     </table>
 
-    <p v-else>Keine Items vorhanden.</p>
+    <p v-else>{{ $t('inventory.noItems') }}</p>
   </div>
 </template>
 
