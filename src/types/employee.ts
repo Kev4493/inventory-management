@@ -7,7 +7,7 @@ export type Employee = {
   zip: string
   city: string
   employmentType: '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer'
-  department: string
+  department: '' | 'development' | 'marketing' | 'sales' | 'design' | 'management' | 'humanResources'
   email: string
   entryDate: string
   exitDate?: string

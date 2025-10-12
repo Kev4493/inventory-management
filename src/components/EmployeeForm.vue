@@ -1,75 +1,75 @@
 <template>
   <form @submit.prevent="handleSubmit" class="addItemForm">
-    <h2>Persönliche Informationen</h2>
+    <h2>{{ $t('employeeForm.headline.personalInfo') }}</h2>
     <div>
-      <label for="firstName">Vorname:</label>
+      <label for="firstName">{{ $t('employeeForm.label.firstName') }}:</label>
       <input v-model="newEmployee.firstName" type="text" id="firstName" name="firstName" required />
     </div>
     <div>
-      <label for="lastName">Nachname:</label>
+      <label for="lastName">{{ $t('employeeForm.label.lastName') }}:</label>
       <input v-model="newEmployee.lastName" type="text" id="lastName" name="lastName" required />
     </div>
     <div>
-      <label for="street">Straße + Hausnummer:</label>
+      <label for="street">{{ $t('employeeForm.label.street') }}:</label>
       <input v-model="newEmployee.street" type="text" id="street" name="street" required />
     </div>
     <div>
-      <label for="zip">PLZ:</label>
+      <label for="zip">{{ $t('employeeForm.label.zip') }}:</label>
       <input v-model="newEmployee.zip" type="text" id="zip" name="zip" required />
     </div>
     <div>
-      <label for="city">Stadt:</label>
+      <label for="city">{{ $t('employeeForm.label.city') }}:</label>
       <input v-model="newEmployee.city" type="text" id="city" name="city" required />
     </div>
 
-    <h2>Geschäftliche Informationen</h2>
+    <h2>{{ $t('employeeForm.headline.jobInfo') }}</h2>
 
     <div>
-      <label for="employmentType">Beschäftigungsart:</label>
+      <label for="employmentType">{{ $t('employeeForm.label.employmentType') }}:</label>
       <select v-model="newEmployee.employmentType" id="employmentType" name="employmentType" required>
-        <option value="" disabled>Beschäftigungsart auswählen</option>
-        <option value="fullTime">Vollzeit</option>
-        <option value="partTime">Teilzeit</option>
-        <option value="workingStudent">Werkstudent</option>
-        <option value="intern">Praktikant</option>
-        <option value="trainee">Auszubildender</option>
-        <option value="freelancer">Freelancer</option>
+        <option value="" disabled>{{ $t('employeeForm.placeholder.chooseEmploymentType') }}</option>
+        <option value="fullTime">{{ $t('employeeForm.employmentType.fullTime') }}</option>
+        <option value="partTime">{{ $t('employeeForm.employmentType.partTime') }}</option>
+        <option value="workingStudent">{{ $t('employeeForm.employmentType.workingStudent') }}</option>
+        <option value="intern">{{ $t('employeeForm.employmentType.intern') }}</option>
+        <option value="trainee">{{ $t('employeeForm.employmentType.trainee') }}</option>
+        <option value="freelancer">{{ $t('employeeForm.employmentType.freelancer') }}</option>
       </select>
     </div>
 
     <div>
-      <label for="department">Abteilung:</label>
+      <label for="department">{{ $t('employeeForm.label.department') }}:</label>
       <select v-model="newEmployee.department" id="department" name="department" required>
-        <option value="" disabled>Abteilung auswählen</option>
-        <option value="Messe Büro">Messe Büro</option>
-        <option value="GEOX Büro">GEOX Büro</option>
-        <option value="PM Büro">PM Büro</option>
-        <option value="GF Büro">GF Büro</option>
-        <option value="Kleines Büro">Kleines Büro</option>
-        <option value="Besprechungsraum">Besprechungsraum</option>
+        <option value="" disabled>{{ $t('employeeForm.placeholder.chooseDepartment') }}</option>
+        <option value="development">{{ $t('employeeForm.department.development') }}</option>
+        <option value="marketing">{{ $t('employeeForm.department.marketing') }}</option>
+        <option value="sales">{{ $t('employeeForm.department.sales') }}</option>
+        <option value="design">{{ $t('employeeForm.department.design') }}</option>
+        <option value="management">{{ $t('employeeForm.department.management') }}</option>
+        <option value="humanResources">{{ $t('employeeForm.department.humanResources') }}</option>
       </select>
     </div>
 
     <div>
-      <label for="email">Email:</label>
+      <label for="email">{{ $t('employeeForm.label.email') }}:</label>
       <input v-model="newEmployee.email" type="text" id="email" name="email" required />
     </div>
 
     <div>
-      <label for="entryDate">Eintrittsdatum:</label>
+      <label for="entryDate">{{ $t('employeeForm.label.entryDate') }}:</label>
       <input v-model="newEmployee.entryDate" type="date" id="entryDate" name="entryDate" required />
     </div>
     <div>
-      <label for="exitDate">Austrittsdatum:</label>
+      <label for="exitDate">{{ $t('employeeForm.label.exitDate') }}:</label>
       <input v-model="newEmployee.exitDate" type="date" id="exitDate" name="exitDate" />
     </div>
 
     <div>
-      <label for="notes">{{ $t('itemForm.label.notes') }}:</label>
+      <label for="notes">{{ $t('employeeForm.label.notes') }}:</label>
       <textarea v-model="newEmployee.notes" id="notes" name="notes" required></textarea>
     </div>
 
-    <button type="submit">Mitarbeiter hinzufügen</button>
+    <button type="submit">{{ $t('employeeForm.button.addEmployee') }}</button>
   </form>
 </template>
 

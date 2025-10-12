@@ -37,17 +37,50 @@ const de = {
       chooseCategory: 'Kategorie auswählen',
       location: 'Standort auswählen',
       assigned: 'Person auswählen',
-    }
+    },
   },
 
   employeeForm: {
+    headline: {
+      personalInfo: 'Persönliche Informationen',
+      jobInfo: 'Beschäftigungsinformationen',
+    },
     label: {
       firstName: 'Vorname',
       lastName: 'Nachname',
+      street: 'Straße + Hausnummer',
+      zip: 'Postleitzahl',
+      city: 'Stadt',
+      employmentType: 'Beschäftigungsart',
       department: 'Abteilung',
       email: 'E-Mail',
-      phone: 'Telefonnummer',
+      entryDate: 'Eintrittsdatum',
+      exitDate: 'Austrittsdatum',
+      notes: 'Anmerkungen',
     },
+    placeholder: {
+      chooseEmploymentType: 'Beschäftigungsart auswählen',
+      chooseDepartment: 'Abteilung auswählen',
+    },
+    employmentType: {
+      fullTime: 'Vollzeit',
+      partTime: 'Teilzeit',
+      workingStudent: 'Werkstudent',
+      intern: 'Praktikant',
+      trainee: 'Trainee',
+      freelancer: 'Freelancer',
+    },
+    department: {
+      development: 'Entwicklung',
+      marketing: 'Marketing',
+      sales: 'Vertrieb',
+      design: 'Design',
+      management: 'Geschäftsführung',
+      humanResources: 'Personalabteilung',
+    },
+    button: {
+      addEmployee: 'Mitarbeiter hinzufügen',
+    }
   },
 }
 
