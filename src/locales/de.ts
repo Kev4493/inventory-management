@@ -1,9 +1,29 @@
 const de = {
+  // ===== Navigation =====
   sidebar: {
     home: 'Home',
     inventory: 'Inventar',
     addItem: 'Neues Item',
+    addEmployee: 'Neuer Mitarbeiter',
   },
+
+  // ===== Views ======
+  inventory: {
+    title: 'Inventarliste',
+    noItems: 'Keine Items im Inventar.',
+  },
+
+  addItem: {
+    title: 'Neues Item hinzufügen',
+    subtitle: 'Füge ein neues Produkt zu deinem Inventar hinzu.',
+  },
+
+  addEmployee: {
+    title: 'Neuen Mitarbeiter hinzufügen',
+    subtitle: 'Füge einen neuen Mitarbeiter zu deinem Team hinzu.',
+  },
+
+  // ===== Forms =====
   itemForm: {
     label: {
       productName: 'Produktname',
@@ -19,10 +39,16 @@ const de = {
       assigned: 'Person auswählen',
     }
   },
-  inventory: {
-    title: 'Inventarliste',
-    noItems: 'Keine Items im Inventar.',
-  }
+
+  employeeForm: {
+    label: {
+      firstName: 'Vorname',
+      lastName: 'Nachname',
+      department: 'Abteilung',
+      email: 'E-Mail',
+      phone: 'Telefonnummer',
+    },
+  },
 }
 
 export default de

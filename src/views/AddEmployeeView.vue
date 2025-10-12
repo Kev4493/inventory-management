@@ -1,17 +1,16 @@
-<script setup lang="ts">
-import ItemForm from '@/components/ItemForm.vue'
-</script>
-
 <template>
   <div class="addItemWrapper">
     <div class="addItemHeader">
-      <h1>{{ $t('addItem.title') }}</h1>
-      <p>{{ $t('addItem.subtitle') }}</p>
+      <h1>{{ $t('addEmployee.title') }}</h1>
+      <p>{{ $t('addEmployee.subtitle') }}</p>
     </div>
-
-    <ItemForm></ItemForm>
+    <EmployeeForm></EmployeeForm>
   </div>
 </template>
+
+<script setup lang="ts">
+import EmployeeForm from '@/components/EmployeeForm.vue'
+</script>
 
 <style scoped lang="scss">
 .addItemWrapper {

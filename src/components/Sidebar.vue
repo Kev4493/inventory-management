@@ -25,6 +25,9 @@ function isActive(path: string) {
         <li :class="{ active: isActive('/addItem') }">
           <router-link to="/addItem">{{ $t('sidebar.addItem') }}</router-link>
         </li>
+        <li :class="{ active: isActive('/addEmployee') }">
+          <router-link to="/addEmployee">{{ $t('sidebar.addEmployee') }}</router-link>
+        </li>
       </ul>
     </nav>
   </aside>
