@@ -4,38 +4,53 @@ import { allItems } from '@/stores/inventoryStore.ts'
 import type { Item } from '@/types/item.ts'
 
 
-// Objekt für ein neu hinzuzufügendes Item
+// Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
 const newItem = reactive<Omit<Item, 'id'>>({
   name: '',
   category: '',
   location: '',
-  person: '',
+  person: null,
   purchaseDate: new Date().getFullYear(),
-  notes: ''
+  notes: null
 });
 
 
-let nextId = 1;
+async function handleSubmit() {
+  try {
+    // 1) newItem an Backend (API) senden
+    const res = await fetch('/api/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItem),
+    });
 
+    // 2) Antwort auslesen & Fehler prüfen
+    const saved = await res.json().catch(() => null);
+    console.log('Antwort vom Backend:', saved);   // ← zeigt das Objekt inkl. endgültiger id
 
-function handleSubmit() {
-  // 1. Neues Item ins Array kopieren
-  allItems.value.push({
-    id: nextId++,
-    ...newItem });
+    if (!res.ok) {
+      throw new Error(saved?.error || 'Fehler beim Speichern');
+    }
 
-  // 2. Debug-Ausgabe
-  console.log("📦 Alle Items:", allItems.value);
+    // 3) in den Store pushen – jetzt mit echter DB-ID
+    allItems.value.push(saved);
 
-  // 3. Formular leeren
-  Object.assign(newItem, {
-    name: '',
-    category: '',
-    location: '',
-    person: '',
-    purchaseDate: new Date().getFullYear(),
-    notes: '',
-  });
+    // 4) Formular leeren (wie bisher)
+    Object.assign(newItem, {
+      name: '',
+      category: '',
+      location: '',
+      person: null,
+      purchaseDate: new Date().getFullYear(),
+      notes: null,
+    });
+
+    console.log('📦 Gespeichert (aus DB):', saved);
+
+  } catch (e: any) {
+    console.error(e);
+    alert(e?.message || 'Fehler beim Speichern');
+  }
 }
 
 </script>
@@ -79,8 +94,8 @@ function handleSubmit() {
 
     <div>
       <label for="person">{{ $t('itemForm.label.assigned') }}:</label>
-      <select v-model="newItem.person" id="person" name="person" required>
-        <option value="" disabled>{{ $t('itemForm.label.assigned') }}</option>
+      <select v-model="newItem.person" id="person" name="person">
+        <option :value="null" disabled>{{ $t('itemForm.label.assigned') }}</option>
         <option value="Kevin Wagner">Kevin Wagner</option>
         <option value="Itay Krämer">Itay Krämer</option>
         <option value="Camill Hauser">Camill Hauser</option>
@@ -96,13 +111,13 @@ function handleSubmit() {
         id="purchaseDate"
         name="purchaseDate"
         required
-        v-model="newItem.purchaseDate"
+        v-model.number="newItem.purchaseDate"
       />
     </div>
 
     <div>
       <label for="notes">{{ $t('itemForm.label.notes') }}:</label>
-      <textarea v-model="newItem.notes" id="notes" name="notes" required></textarea>
+      <textarea v-model="newItem.notes" id="notes" name="notes"></textarea>
     </div>
 
     <button type="submit">Item hinzufügen</button>
