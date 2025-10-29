@@ -1,64 +1,3 @@
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { allItems } from '@/stores/inventoryStore.ts'
-import type { Item } from '@/types/item.ts'
-
-// Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
-const newItem = reactive<Omit<Item, 'id'>>({
-  name: '',
-  category: '',
-  location: '',
-  person: null,
-  purchaseDate: new Date().getFullYear(),
-  notes: null,
-});
-
-const isSaving = ref(false);
-
-async function handleSubmit() {
-  if (isSaving.value) return;
-  isSaving.value = true;
-
-  try {
-    // 1) newItem an Backend (API) senden
-    const res = await fetch('/api/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem),
-    });
-
-    // 2) Antwort auslesen & Fehler prüfen
-    const saved = await res.json().catch(() => null);
-    console.log('Antwort vom Backend:', saved);   // ← zeigt das Objekt inkl. endgültiger id
-
-    if (!res.ok) {
-      throw new Error(saved?.error || 'Fehler beim Speichern');
-    }
-
-    // 3) in den Store pushen – jetzt mit echter DB-ID
-    allItems.value.push(saved);
-
-    // 4) Formular leeren (wie bisher)
-    Object.assign(newItem, {
-      name: '',
-      category: '',
-      location: '',
-      person: null,
-      purchaseDate: new Date().getFullYear(),
-      notes: null,
-    });
-
-    console.log('📦 Gespeichert (aus DB):', saved);
-
-  } catch (e: any) {
-    console.error(e);
-    alert(e?.message || 'Fehler beim Speichern');
-  } finally {
-    isSaving.value = false;
-  }
-}
-</script>
-
 <template>
   <form @submit.prevent="handleSubmit" class="addItemForm">
     <div>
@@ -129,6 +68,67 @@ async function handleSubmit() {
     </button>
   </form>
 </template>
+
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+import { allItems } from '@/stores/inventoryStore.ts'
+import type { Item } from '@/types/item.ts'
+
+// Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
+const newItem = reactive<Omit<Item, 'id'>>({
+  name: '',
+  category: '',
+  location: '',
+  person: null,
+  purchaseDate: new Date().getFullYear(),
+  notes: null,
+});
+
+const isSaving = ref(false);
+
+async function handleSubmit() {
+  if (isSaving.value) return;
+  isSaving.value = true;
+
+  try {
+    // 1) newItem an Backend (API) senden
+    const res = await fetch('/api/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItem),
+    });
+
+    // 2) Antwort auslesen & Fehler prüfen
+    const saved = await res.json().catch(() => null);
+    console.log('Antwort vom Backend:', saved);   // ← zeigt das Objekt inkl. endgültiger id
+
+    if (!res.ok) {
+      throw new Error(saved?.error || 'Fehler beim Speichern');
+    }
+
+    // 3) in den Store pushen – jetzt mit echter DB-ID
+    allItems.value.push(saved);
+
+    // 4) Formular leeren (wie bisher)
+    Object.assign(newItem, {
+      name: '',
+      category: '',
+      location: '',
+      person: null,
+      purchaseDate: new Date().getFullYear(),
+      notes: null,
+    });
+
+    console.log('📦 Gespeichert (aus DB):', saved);
+
+  } catch (e: any) {
+    console.error(e);
+    alert(e?.message || 'Fehler beim Speichern');
+  } finally {
+    isSaving.value = false;
+  }
+}
+</script>
 
 <style scoped lang="scss">
 .addItemForm {

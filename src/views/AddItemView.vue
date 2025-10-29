@@ -1,7 +1,3 @@
-<script setup lang="ts">
-import ItemForm from '@/components/ItemForm.vue'
-</script>
-
 <template>
   <div class="addItemWrapper">
     <div class="addItemHeader">
@@ -12,6 +8,10 @@ import ItemForm from '@/components/ItemForm.vue'
     <ItemForm></ItemForm>
   </div>
 </template>
+
+<script setup lang="ts">
+import ItemForm from '@/components/ItemForm.vue'
+</script>
 
 <style scoped lang="scss">
 .addItemWrapper {

@@ -1,14 +1,3 @@
-<script setup lang="ts">
-import { useRoute } from 'vue-router'
-import Logo from '@/assets/Images/anders-und-sehr-logo.svg'
-
-const route = useRoute()
-
-function isActive(path: string) {
-  return route.path === path
-}
-</script>
-
 <template>
   <aside class="sidebar">
     <div class="sidebarHeader">
@@ -33,8 +22,18 @@ function isActive(path: string) {
   </aside>
 </template>
 
-<style scoped lang="scss">
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+import Logo from '@/assets/Images/anders-und-sehr-logo.svg'
 
+const route = useRoute()
+
+function isActive(path: string) {
+  return route.path === path
+}
+</script>
+
+<style scoped lang="scss">
 .sidebarHeader {
   position: absolute;
   top: 0;

@@ -1,8 +1,3 @@
-<script setup lang="ts">
-import { RouterView } from 'vue-router'
-import Sidebar from '@/components/Sidebar.vue'
-</script>
-
 <template>
   <div class="app-layout">
     <Sidebar></Sidebar>
@@ -11,6 +6,11 @@ import Sidebar from '@/components/Sidebar.vue'
     </main>
   </div>
 </template>
+
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import Sidebar from '@/components/Sidebar.vue'
+</script>
 
 <style scoped lang="scss">
 .app-layout {
