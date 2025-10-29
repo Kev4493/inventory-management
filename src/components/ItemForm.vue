@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { allItems } from '@/stores/inventoryStore.ts'
 import type { Item } from '@/types/item.ts'
-
 
 // Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
 const newItem = reactive<Omit<Item, 'id'>>({
@@ -11,11 +10,15 @@ const newItem = reactive<Omit<Item, 'id'>>({
   location: '',
   person: null,
   purchaseDate: new Date().getFullYear(),
-  notes: null
+  notes: null,
 });
 
+const isSaving = ref(false);
 
 async function handleSubmit() {
+  if (isSaving.value) return;
+  isSaving.value = true;
+
   try {
     // 1) newItem an Backend (API) senden
     const res = await fetch('/api/items', {
@@ -50,9 +53,10 @@ async function handleSubmit() {
   } catch (e: any) {
     console.error(e);
     alert(e?.message || 'Fehler beim Speichern');
+  } finally {
+    isSaving.value = false;
   }
 }
-
 </script>
 
 <template>
@@ -120,7 +124,9 @@ async function handleSubmit() {
       <textarea v-model="newItem.notes" id="notes" name="notes"></textarea>
     </div>
 
-    <button type="submit">Item hinzufügen</button>
+    <button type="submit" :disabled="isSaving" aria-busy="true">
+      {{ $t('itemForm.button.addItem') }}
+    </button>
   </form>
 </template>
 
@@ -161,6 +167,10 @@ async function handleSubmit() {
     &:hover {
       background-color: #218838;
     }
+  }
+
+  button[disabled] {
+    opacity: .6; cursor: not-allowed;
   }
 }
 </style>

@@ -38,6 +38,9 @@ const de = {
       location: 'Standort auswählen',
       assigned: 'Person auswählen',
     },
+    button: {
+      addItem: 'Item hinzufügen',
+    }
   },
 
   employeeForm: {
