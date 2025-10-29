@@ -2,6 +2,9 @@
   <div class="inventory">
     <h1>{{ $t('inventory.title') }}</h1>
 
+    <p v-if="loading">Lade Items…</p>
+    <p v-else-if="error">{{ error }}</p>
+
     <table v-if="allItems.length > 0">
       <thead>
       <tr>
@@ -18,9 +21,9 @@
         <td>{{ item.name }}</td>
         <td>{{ item.category }}</td>
         <td>{{ item.location }}</td>
-        <td>{{ item.person }}</td>
+        <td>{{ item.person ?? '—' }}</td>
         <td>{{ item.purchaseDate }}</td>
-        <td>{{ item.notes }}</td>
+        <td>{{ item.notes ?? '—' }}</td>
       </tr>
       </tbody>
     </table>
@@ -30,7 +33,24 @@
 </template>
 
 <script setup lang="ts">
-import { allItems } from '@/stores/inventoryStore.ts'
+import { allItems, loadAllItems } from '@/stores/inventoryStore.ts'
+import { onMounted, ref } from 'vue'
+
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+onMounted(async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    await loadAllItems()
+  } catch (e: any) {
+    error.value = e?.message || 'Konnte Items nicht laden'
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
