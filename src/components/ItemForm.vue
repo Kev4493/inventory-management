@@ -71,10 +71,10 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { allItems } from '@/stores/inventoryStore.ts'
+import { addItem } from '@/stores/inventoryStore.ts'
 import type { Item } from '@/types/item.ts'
 
-// Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
+// Reaktives Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
 const newItem = reactive<Omit<Item, 'id'>>({
   name: '',
   category: '',
@@ -91,25 +91,10 @@ async function handleSubmit() {
   isSaving.value = true;
 
   try {
-    // 1) newItem an Backend (API) senden
-    const res = await fetch('/api/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem),
-    });
+    // 1) Funktion aufrufen, die das Item in der DB speichert
+    await addItem(newItem);
 
-    // 2) Antwort auslesen & Fehler prüfen
-    const saved = await res.json().catch(() => null);
-    console.log('Antwort vom Backend:', saved);   // ← zeigt das Objekt inkl. endgültiger id
-
-    if (!res.ok) {
-      throw new Error(saved?.error || 'Fehler beim Speichern');
-    }
-
-    // 3) in den Store pushen – jetzt mit echter DB-ID
-    allItems.value.push(saved);
-
-    // 4) Formular leeren (wie bisher)
+    // 2) Formular leeren (Object.assign(ziel, quelle) nimmt alles aus "Quelle" und schreibt es in "Ziel")
     Object.assign(newItem, {
       name: '',
       category: '',
@@ -118,8 +103,6 @@ async function handleSubmit() {
       purchaseDate: new Date().getFullYear(),
       notes: null,
     });
-
-    console.log('📦 Gespeichert (aus DB):', saved);
 
   } catch (e: any) {
     console.error(e);
