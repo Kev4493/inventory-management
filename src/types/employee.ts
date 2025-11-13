@@ -4,12 +4,12 @@ export type Employee = {
   firstName: string
   lastName: string
   street: string
-  zip: string
+  zipCode: string
   city: string
-  employmentType: '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer'
+  typeOfEmployment: '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer'
   department: '' | 'development' | 'marketing' | 'sales' | 'design' | 'management' | 'humanResources'
-  email: string
-  entryDate: string
-  exitDate?: string
-  notes: string
+  emailAddress: string
+  dateOfEntry: string
+  dateOfLeaving: string | null
+  notes: string | null;
 };

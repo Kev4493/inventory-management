@@ -15,7 +15,7 @@
     </div>
     <div>
       <label for="zip">{{ $t('employeeForm.label.zip') }}:</label>
-      <input v-model="newEmployee.zip" type="text" id="zip" name="zip" required />
+      <input v-model="newEmployee.zipCode" type="text" id="zip" name="zip" required />
     </div>
     <div>
       <label for="city">{{ $t('employeeForm.label.city') }}:</label>
@@ -26,7 +26,7 @@
 
     <div>
       <label for="employmentType">{{ $t('employeeForm.label.employmentType') }}:</label>
-      <select v-model="newEmployee.employmentType" id="employmentType" name="employmentType" required>
+      <select v-model="newEmployee.typeOfEmployment" id="employmentType" name="employmentType" required>
         <option value="" disabled>{{ $t('employeeForm.placeholder.chooseEmploymentType') }}</option>
         <option value="fullTime">{{ $t('employeeForm.employmentType.fullTime') }}</option>
         <option value="partTime">{{ $t('employeeForm.employmentType.partTime') }}</option>
@@ -52,73 +52,80 @@
 
     <div>
       <label for="email">{{ $t('employeeForm.label.email') }}:</label>
-      <input v-model="newEmployee.email" type="text" id="email" name="email" required />
+      <input v-model="newEmployee.emailAddress" type="text" id="email" name="email" required />
     </div>
 
     <div>
       <label for="entryDate">{{ $t('employeeForm.label.entryDate') }}:</label>
-      <input v-model="newEmployee.entryDate" type="date" id="entryDate" name="entryDate" required />
+      <input v-model="newEmployee.dateOfEntry" type="date" id="entryDate" name="entryDate" required />
     </div>
     <div>
       <label for="exitDate">{{ $t('employeeForm.label.exitDate') }}:</label>
-      <input v-model="newEmployee.exitDate" type="date" id="exitDate" name="exitDate" />
+      <input v-model="newEmployee.dateOfLeaving" type="date" id="exitDate" name="exitDate" />
     </div>
 
     <div>
       <label for="notes">{{ $t('employeeForm.label.notes') }}:</label>
-      <textarea v-model="newEmployee.notes" id="notes" name="notes" required></textarea>
+      <textarea v-model="newEmployee.notes" id="notes" name="notes"></textarea>
     </div>
 
-    <button type="submit">{{ $t('employeeForm.button.addEmployee') }}</button>
+    <button type="submit" :disabled="isSaving" aria-busy="true">
+      {{ $t('employeeForm.button.addEmployee') }}
+    </button>
   </form>
 </template>
 
 <script setup lang="ts">
 import type { Employee } from '@/types/employee.ts'
-import { reactive } from 'vue'
-import { allEmployees } from '@/stores/employeeStore.ts'
+import { reactive, ref } from 'vue'
+import { addEmployee } from '@/stores/employeeStore.ts'
 
 // Objekt für ein neu hinzuzufügenden Mitarbeiter
 const newEmployee = reactive<Omit<Employee, 'id'>>({
   firstName: '',
   lastName: '',
   street: '',
-  zip: '',
+  zipCode: '',
   city: '',
-  employmentType: '' as '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer',
-  email: '',
+  typeOfEmployment: '' as '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer',
+  emailAddress: '',
   department: '',
-  entryDate: '',
-  exitDate: '',
-  notes: ''
+  dateOfEntry: '',
+  dateOfLeaving: null,
+  notes: null
 })
 
-let nextId = 1;
+const isSaving = ref(false);
 
+async function handleSubmit() {
+  if (isSaving.value) return;
+  isSaving.value = true;
 
-function handleSubmit() {
-  // 1. Neues Item ins Array kopieren
-  allEmployees.value.push({
-    id: nextId++,
-    ...newEmployee });
+  try {
+    // 1) Funktion aufrufen, die den MA in der DB speichert
+    await addEmployee(newEmployee);
 
-  // 2. Debug-Ausgabe
-  console.log("📦 Alle Mitarbeiter:", allEmployees.value);
+    // 3. Formular leeren
+    Object.assign(newEmployee, {
+      firstName: '',
+      lastName: '',
+      street: '',
+      zipCode: '',
+      city: '',
+      typeOfEmployment: '' as '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer',
+      emailAddress: '',
+      department: '',
+      dateOfEntry: '',
+      dateOfLeaving: null,
+      notes: null
+    });
 
-  // 3. Formular leeren
-  Object.assign(newEmployee, {
-    firstName: '',
-    lastName: '',
-    street: '',
-    zip: '',
-    city: '',
-    employmentType: '' as '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer',
-    email: '',
-    department: '',
-    entryDate: '',
-    exitDate: '',
-    notes: ''
-  });
+  } catch (e: any) {
+    console.error(e);
+    alert(e?.message || 'Fehler beim Speichern');
+  } finally {
+    isSaving.value = false;
+  }
 }
 </script>
 
