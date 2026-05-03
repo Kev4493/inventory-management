@@ -5,6 +5,7 @@ const de = {
     inventory: 'Inventar',
     addItem: 'Neues Item',
     addEmployee: 'Neuer Mitarbeiter',
+    employee: 'Mitarbeiterliste'
   },
 
   // ===== Views ======

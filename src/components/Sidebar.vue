@@ -17,6 +17,12 @@
         <li :class="{ active: isActive('/addEmployee') }">
           <router-link to="/addEmployee">{{ $t('sidebar.addEmployee') }}</router-link>
         </li>
+        <li :class="{ active: isActive('/employee') }">
+          <router-link to="/employee">{{ $t('sidebar.employee') }}</router-link>
+        </li>
+        <li class="playground" :class="{ active: isActive('/playground') }">
+          <router-link to="/playground">Dev-PlayGround</router-link>
+        </li>
       </ul>
     </nav>
   </aside>
@@ -101,5 +107,11 @@ function isActive(path: string) {
       }
     }
   }
+}
+
+.playground {
+  position: absolute;
+  bottom: 50px;
+  right: 0;
 }
 </style>
