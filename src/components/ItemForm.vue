@@ -153,7 +153,8 @@ async function handleSubmit() {
   }
 
   button[disabled] {
-    opacity: .6; cursor: not-allowed;
+    opacity: .6;
+    cursor: not-allowed;
   }
 }
 </style>

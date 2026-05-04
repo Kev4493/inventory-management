@@ -105,7 +105,7 @@ async function handleSubmit() {
     // 1) Funktion aufrufen, die den MA in der DB speichert
     await addEmployee(newEmployee);
 
-    // 3. Formular leeren
+    // 2. Formular leeren
     Object.assign(newEmployee, {
       firstName: '',
       lastName: '',

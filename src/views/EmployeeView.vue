@@ -15,25 +15,41 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="employee in allEmployees" :key="employee.id">
+        <tr
+          v-for="employee in allEmployees"
+          :key="employee.id"
+          @click="openEmployeeDetails(employee)"
+        >
           <td>{{ employee.firstName }}</td>
           <td>{{ employee.lastName }}</td>
-          <td>{{ employee.department }}</td>
-          <td>{{ employee.typeOfEmployment }}</td>
+          <td>{{ $t(`employeeForm.department.${employee.department}`) }}</td>
+          <td>{{ $t(`employeeForm.employmentType.${employee.typeOfEmployment}`) }}</td>
         </tr>
       </tbody>
     </table>
 
     <p v-else>Keine Mitarbeiter gefunden</p>
   </div>
+
+  <EmployeeDetailDrawer
+    v-if="selectedEmployee"
+    :employee="selectedEmployee"
+    :open="isDrawerOpen"
+    @close="isDrawerOpen = false"
+  />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts'
+import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue'
+import type { Employee } from '@/types/employee.ts'
 
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+const selectedEmployee = ref<Employee | null>(null)
+const isDrawerOpen = ref(false)
 
 onMounted(async () => {
   loading.value = true
@@ -47,6 +63,11 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+function openEmployeeDetails(employee: Employee) {
+  selectedEmployee.value = employee
+  isDrawerOpen.value = true
+}
 </script>
 
 <style scoped lang="scss">
@@ -70,6 +91,17 @@ tr {
   margin: 2rem;
   background-color: lightblue;
   border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+tbody {
+  tr {
+    cursor: pointer;
+  }
+
+  tr:hover {
+    background-color: #d7eef7;
+  }
 }
 
 tr:nth-child(even) {
