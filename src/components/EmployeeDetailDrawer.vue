@@ -25,6 +25,21 @@
           </div>
         </div>
 
+        <!-- ===== Assigned items ===== -->
+        <section class="drawer__section">
+          <p class="drawer__sectionTitle">Zugewiesene Items</p>
+
+          <div v-if="assignedItems.length > 0" class="drawer__infoList">
+            <div v-for="item in assignedItems" :key="item.id" class="drawer__infoRow">
+              <span class="drawer__infoLabel">{{ item.category }}</span>
+              <span class="drawer__infoValue">{{ item.name }}</span>
+            </div>
+          </div>
+
+          <p v-else class="drawer__note">Keine Items zugewiesen.</p>
+        </section>
+
+        <!-- ===== Contact Informations ===== -->
         <div class="drawer__content">
           <section class="drawer__section">
             <p class="drawer__sectionTitle">Kontakt</p>
@@ -39,18 +54,15 @@
 
           <section class="drawer__section">
             <p class="drawer__sectionTitle">Adresse</p>
-
             <div class="drawer__infoList">
               <div class="drawer__infoRow">
                 <span class="drawer__infoLabel">Straße</span>
                 <span class="drawer__infoValue">{{ employee.street }}</span>
               </div>
-
               <div class="drawer__infoRow">
                 <span class="drawer__infoLabel">PLZ</span>
                 <span class="drawer__infoValue">{{ employee.zipCode }}</span>
               </div>
-
               <div class="drawer__infoRow">
                 <span class="drawer__infoLabel">Ort</span>
                 <span class="drawer__infoValue">{{ employee.city }}</span>
@@ -58,6 +70,7 @@
             </div>
           </section>
 
+          <!-- ===== Job Informations ===== -->
           <section class="drawer__section">
             <p class="drawer__sectionTitle">Beschäftigung</p>
 
@@ -85,9 +98,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import type { Employee } from '@/types/employee.ts'
+import { allItems, loadAllItems } from '@/stores/inventoryStore.ts'
 
-defineProps<{
+const props = defineProps<{
   employee: Employee | null
   open: boolean
 }>()
@@ -95,6 +110,19 @@ defineProps<{
 defineEmits<{
   close: []
 }>()
+
+// Alle Items filtern, die diesem Mitarbeiter zugewiesen sind
+// computed reagiert automatisch wenn sich allItems oder employee ändert
+const assignedItems = computed(() =>
+  allItems.value.filter((item) => item.personId === props.employee?.id),
+)
+
+onMounted(async () => {
+  // Items nur laden falls noch nicht vorhanden
+  if (allItems.value.length === 0) {
+    await loadAllItems()
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -144,6 +172,7 @@ defineEmits<{
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .drawer__metaTag {
