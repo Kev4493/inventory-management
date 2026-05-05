@@ -16,8 +16,12 @@
           </div>
 
           <div class="drawer__meta">
-            <span class="drawer__metaTag">{{ employee.department }}</span>
-            <span class="drawer__metaTag">{{ employee.typeOfEmployment }}</span>
+            <span class="drawer__metaTag">{{
+              $t(`employeeForm.department.${employee.department}`)
+            }}</span>
+            <span class="drawer__metaTag">{{
+              $t(`employeeForm.employmentType.${employee.typeOfEmployment}`)
+            }}</span>
           </div>
         </div>
 
