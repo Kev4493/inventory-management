@@ -22,7 +22,7 @@ class ApiController
             'name' => $i->getName(),
             'category' => $i->getCategory(),
             'location' => $i->getLocation(),
-            'person' => $i->getPerson(),
+            'personId' => $i->getPersonId(),
             'purchaseDate' => $i->getPurchaseDate(),
             'notes' => $i->getNotes(),
         ], $items);
@@ -49,7 +49,7 @@ class ApiController
         $item->setName((string)$data['name']);
         $item->setCategory((string)$data['category']);
         $item->setLocation((string)$data['location']);
-        $item->setPerson($data['person'] ?? null);
+        $item->setPersonId(isset($data['personId']) ? (int)$data['personId'] : null);
         $item->setPurchaseDate((int)$data['purchaseDate']);
         $item->setNotes($data['notes'] ?? null);
 
@@ -61,7 +61,7 @@ class ApiController
             'name' => $item->getName(),
             'category' => $item->getCategory(),
             'location' => $item->getLocation(),
-            'person' => $item->getPerson(),
+            'personId' => $item->getPersonId(),
             'purchaseDate' => $item->getPurchaseDate(),
             'notes' => $item->getNotes(),
         ], 201);

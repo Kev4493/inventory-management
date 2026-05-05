@@ -23,8 +23,8 @@ class Item
     #[ORM\Column(length: 100)]
     private ?string $location = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    private ?string $person = null;
+    #[ORM\Column(nullable: true)]
+    private ?int $personId = null;
 
     #[ORM\Column]
     private ?int $purchaseDate = null;
@@ -73,14 +73,14 @@ class Item
         return $this;
     }
 
-    public function getPerson(): ?string
+    public function getPersonId(): ?int
     {
-        return $this->person;
+        return $this->personId;
     }
 
-    public function setPerson(?string $person): static
+    public function setPersonId(?int $personId): static
     {
-        $this->person = $person;
+        $this->personId = $personId;
 
         return $this;
     }
