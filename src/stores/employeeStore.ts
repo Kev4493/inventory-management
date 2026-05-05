@@ -32,6 +32,15 @@ export async function addEmployee(newEmployee: Omit<Employee, 'id'>) {
   await loadAllEmployees()
 }
 
+export function findEmployeeByID(id: number) {
+  return allEmployees.value.find(e => e.id === id)
+}
+
+export function getEmployeeNameById(id: number | null): string {
+  if (id === null) return '—'
+  const employee = allEmployees.value.find((e) => e.id === id)
+  return employee ? `${employee.firstName} ${employee.lastName}` : '—'
+}
 
 // Fehlerbehandlung bei Fetch-Antworten
 async function handleFetchError(res: Response): Promise<void> {

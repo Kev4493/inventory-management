@@ -4,7 +4,7 @@ export type Item = {
   name: string;
   category: string;
   location: string;
-  person: string | null;
+  personId: number | null;
   purchaseDate: number;
   notes: string | null;
 };

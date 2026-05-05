@@ -37,14 +37,17 @@
 
     <div>
       <label for="person">{{ $t('itemForm.label.assigned') }}:</label>
-      <select v-model="newItem.person" id="person" name="person">
+      <select v-model="newItem.personId" :disabled="loading" id="person" name="person">
         <option :value="null" disabled>{{ $t('itemForm.label.assigned') }}</option>
-        <option value="Kevin Wagner">Kevin Wagner</option>
-        <option value="Itay Krämer">Itay Krämer</option>
-        <option value="Camill Hauser">Camill Hauser</option>
-        <option value="Johannes Sommer">Johannes Sommer</option>
-        <option value="Benjamin Stiber">Benjamin Stiber</option>
+        <option
+          v-for="employee in allEmployees"
+          :value="employee.id"
+          :key="employee.id"
+        >
+          {{ employee.firstName + ' ' + employee.lastName }}
+        </option>
       </select>
+      <p v-if="error">{{ error }}</p>
     </div>
 
     <div>
@@ -70,21 +73,37 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { addItem } from '@/stores/inventoryStore.ts'
 import type { Item } from '@/types/item.ts'
+import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts'
 
 // Reaktives Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
 const newItem = reactive<Omit<Item, 'id'>>({
   name: '',
   category: '',
   location: '',
-  person: null,
+  personId: null,
   purchaseDate: new Date().getFullYear(),
   notes: null,
 });
 
 const isSaving = ref(false);
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+onMounted(async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    await loadAllEmployees()
+  } catch (e: any) {
+    error.value = e?.message || 'Konnte Mitarbeiter nicht laden'
+  } finally {
+    loading.value = false
+  }
+})
 
 async function handleSubmit() {
   if (isSaving.value) return;
@@ -99,7 +118,7 @@ async function handleSubmit() {
       name: '',
       category: '',
       location: '',
-      person: null,
+      personId: null,
       purchaseDate: new Date().getFullYear(),
       notes: null,
     });

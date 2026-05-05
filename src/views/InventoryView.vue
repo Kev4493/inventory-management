@@ -7,24 +7,24 @@
 
     <table v-if="allItems.length > 0">
       <thead>
-      <tr>
-        <th>{{ $t('itemForm.label.productName') }}</th>
-        <th>{{ $t('itemForm.label.category') }}</th>
-        <th>{{ $t('itemForm.label.location') }}:</th>
-        <th>{{ $t('itemForm.label.assigned') }}:</th>
-        <th>{{ $t('itemForm.label.purchaseDate') }}:</th>
-        <th>{{ $t('itemForm.label.notes') }}:</th>
-      </tr>
+        <tr>
+          <th>{{ $t('itemForm.label.productName') }}</th>
+          <th>{{ $t('itemForm.label.category') }}</th>
+          <th>{{ $t('itemForm.label.location') }}:</th>
+          <th>{{ $t('itemForm.label.assigned') }}:</th>
+          <th>{{ $t('itemForm.label.purchaseDate') }}:</th>
+          <th>{{ $t('itemForm.label.notes') }}:</th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="item in allItems" :key="item.id">
-        <td>{{ item.name }}</td>
-        <td>{{ item.category }}</td>
-        <td>{{ item.location }}</td>
-        <td>{{ item.person ?? '—' }}</td>
-        <td>{{ item.purchaseDate }}</td>
-        <td>{{ item.notes ?? '—' }}</td>
-      </tr>
+        <tr v-for="item in allItems" :key="item.id">
+          <td>{{ item.name }}</td>
+          <td>{{ item.category }}</td>
+          <td>{{ item.location }}</td>
+          <td>{{ getEmployeeNameById(item.personId) }}</td>
+          <td>{{ item.purchaseDate }}</td>
+          <td>{{ item.notes ?? '—' }}</td>
+        </tr>
       </tbody>
     </table>
 
@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import { allItems, loadAllItems } from '@/stores/inventoryStore.ts'
 import { onMounted, ref } from 'vue'
+import { getEmployeeNameById, loadAllEmployees } from '@/stores/employeeStore.ts'
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -44,9 +45,15 @@ onMounted(async () => {
   error.value = null
 
   try {
-    await loadAllItems()
+    // Beide API-Requests gleichzeitig starten (parallel, nicht nacheinander)
+    // Promise.all wartet bis BEIDE fertig sind, bevor es weitergeht
+    await Promise.all([loadAllItems(), loadAllEmployees()])
   } catch (e: any) {
-    error.value = e?.message || 'Konnte Items nicht laden'
+    // Falls einer der Requests fehlschlägt, Fehlermeldung speichern
+    // e?.message nimmt die Fehlermeldung des Servers, falls vorhanden
+    error.value = e?.message || 'Konnte Daten nicht laden'
+    // finally läuft IMMER – egal ob Erfolg oder Fehler
+    // Ladezustand deaktivieren, damit die Tabelle oder der Fehler angezeigt wird
   } finally {
     loading.value = false
   }
