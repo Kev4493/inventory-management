@@ -24,6 +24,10 @@ const de = {
     subtitle: 'Füge einen neuen Mitarbeiter zu deinem Team hinzu.',
   },
 
+  employee: {
+    noEmployee: 'Keine Mitarbeiter gepflegt'
+  },
+
   // ===== Forms =====
   itemForm: {
     label: {

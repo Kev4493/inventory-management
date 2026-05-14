@@ -2,43 +2,201 @@
   <div class="inventory">
     <h1>{{ $t('inventory.title') }}</h1>
 
-    <p v-if="loading">Lade Items…</p>
+    <p v-if="loading">Lade Items...</p>
     <p v-else-if="error">{{ error }}</p>
 
-    <table v-if="allItems.length > 0">
-      <thead>
-        <tr>
-          <th>{{ $t('itemForm.label.productName') }}</th>
-          <th>{{ $t('itemForm.label.category') }}</th>
-          <th>{{ $t('itemForm.label.location') }}:</th>
-          <th>{{ $t('itemForm.label.assigned') }}:</th>
-          <th>{{ $t('itemForm.label.purchaseDate') }}:</th>
-          <th>{{ $t('itemForm.label.notes') }}:</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in allItems" :key="item.id">
-          <td>{{ item.name }}</td>
-          <td>{{ item.category }}</td>
-          <td>{{ item.location }}</td>
-          <td>{{ getEmployeeNameById(item.personId) }}</td>
-          <td>{{ item.purchaseDate }}</td>
-          <td>{{ item.notes ?? '—' }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <DataTable
+      v-else-if="tableItems.length > 0"
+      v-model:filters="filters"
+      :value="tableItems"
+      paginator
+      :rows="10"
+      dataKey="id"
+      filterDisplay="row"
+      :globalFilterFields="[
+        'name',
+        'category',
+        'location',
+        'assignedEmployeeName',
+        'purchaseDate',
+        'notes',
+      ]"
+      tableStyle="min-width: 50rem"
+      rowHover
+    >
+      <template #header>
+        <div class="tableHeader">
+          <IconField>
+            <InputIcon class="pi pi-search" />
+            <InputText v-model="filters.global.value" placeholder="Suche in allen Spalten" />
+          </IconField>
+        </div>
+      </template>
+
+      <template #empty>{{ $t('inventory.noItems') }}</template>
+
+      <Column
+        field="name"
+        :header="$t('itemForm.label.productName')"
+        style="min-width: 12rem"
+        :showFilterMenu="false"
+      >
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            class="filterField"
+            type="text"
+            :placeholder="$t('itemForm.label.productName')"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+
+      <Column
+        field="category"
+        :header="$t('itemForm.label.category')"
+        style="min-width: 12rem"
+        :showFilterMenu="false"
+      >
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            class="filterField"
+            :options="categoryOptions"
+            :placeholder="$t('itemForm.label.category')"
+            :showClear="true"
+            fluid
+            @change="filterCallback()"
+          />
+        </template>
+      </Column>
+
+      <Column
+        field="location"
+        :header="$t('itemForm.label.location')"
+        style="min-width: 12rem"
+        :showFilterMenu="false"
+      >
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            class="filterField"
+            :options="locationOptions"
+            :placeholder="$t('itemForm.label.location')"
+            :showClear="true"
+            fluid
+            @change="filterCallback()"
+          />
+        </template>
+      </Column>
+
+      <Column
+        field="assignedEmployeeName"
+        :header="$t('itemForm.label.assigned')"
+        style="min-width: 14rem"
+        :showFilterMenu="false"
+      >
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            class="filterField"
+            :options="employeeOptions"
+            :placeholder="$t('itemForm.label.assigned')"
+            :showClear="true"
+            fluid
+            @change="filterCallback()"
+          />
+        </template>
+      </Column>
+
+      <Column
+        field="purchaseDate"
+        :header="$t('itemForm.label.purchaseDate')"
+        style="min-width: 10rem"
+        :showFilterMenu="false"
+      >
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            class="filterField"
+            :options="purchaseYearOptions"
+            :placeholder="$t('itemForm.label.purchaseDate')"
+            :showClear="true"
+            fluid
+            @change="filterCallback()"
+          />
+        </template>
+      </Column>
+
+      <Column field="notes" :header="$t('itemForm.label.notes')" style="min-width: 14rem" :showFilterMenu="false">
+        <template #body="{ data }">
+          {{ data.notes }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            class="filterField"
+            type="text"
+            :placeholder="$t('itemForm.label.notes')"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
+    </DataTable>
 
     <p v-else>{{ $t('inventory.noItems') }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { FilterMatchMode } from '@primevue/core/api'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import InputText from 'primevue/inputtext'
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
+import Select from 'primevue/select'
 import { allItems, loadAllItems } from '@/stores/inventoryStore.ts'
-import { onMounted, ref } from 'vue'
 import { getEmployeeNameById, loadAllEmployees } from '@/stores/employeeStore.ts'
 
 const loading = ref(false)
 const error = ref<string | null>(null)
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  category: { value: null, matchMode: FilterMatchMode.EQUALS },
+  location: { value: null, matchMode: FilterMatchMode.EQUALS },
+  assignedEmployeeName: { value: null, matchMode: FilterMatchMode.EQUALS },
+  purchaseDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  notes: { value: null, matchMode: FilterMatchMode.CONTAINS },
+})
+
+const tableItems = computed(() =>
+  allItems.value.map((item) => ({
+    ...item,
+    assignedEmployeeName: getEmployeeNameById(item.personId),
+    notes: item.notes ?? '-',
+  })),
+)
+
+const categoryOptions = computed(() =>
+  [...new Set(tableItems.value.map((item) => item.category))].sort((a, b) => a.localeCompare(b)),
+)
+
+const locationOptions = computed(() =>
+  [...new Set(tableItems.value.map((item) => item.location))].sort((a, b) => a.localeCompare(b)),
+)
+
+const employeeOptions = computed(() =>
+  [...new Set(tableItems.value.map((item) => item.assignedEmployeeName))]
+    .filter((name) => name !== '-')
+    .sort((a, b) => a.localeCompare(b)),
+)
+
+const purchaseYearOptions = computed(() =>
+  [...new Set(tableItems.value.map((item) => item.purchaseDate))].sort((a, b) => a - b),
+)
 
 onMounted(async () => {
   loading.value = true
@@ -61,29 +219,12 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-table {
+.tableHeader {
+  display: flex;
+  justify-content: flex-end;
+}
+
+:deep(.filterField) {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 1rem;
-}
-
-th,
-td {
-  padding: 0.75rem;
-  text-align: left;
-}
-
-th {
-  background-color: #f0f0f0;
-}
-
-tr {
-  margin: 2rem;
-  background-color: lightblue;
-  border-radius: 12px;
-}
-
-tr:nth-child(even) {
-  background-color: #fafafa;
 }
 </style>
