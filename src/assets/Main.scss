@@ -1,5 +1,9 @@
 @use './fonts';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   font-family: "ChillaxRegular", sans-serif;
   margin: 0;
