@@ -1,12 +1,12 @@
 <template>
   <div class="employeeView">
-    <h1>Mitarbeiterliste</h1>
+    <h1>{{ $t('employee.title') }}</h1>
 
-    <p v-if="loading">Lade Mitarbeiter...</p>
+    <p v-if="loading">{{ $t('employee.loading') }}</p>
     <p v-else-if="error">{{ error }}</p>
 
     <DataTable
-      v-else-if="allEmployees.length > 0"
+      v-else
       v-model:filters="filters"
       :value="allEmployees"
       @row-click="openEmployeeDetails"
@@ -22,12 +22,12 @@
         <div class="tableHeader">
           <IconField>
             <InputIcon class="pi pi-search" />
-            <InputText v-model="filters.global.value" placeholder="Suche in allen Spalten" />
+            <InputText v-model="filters.global.value" :placeholder="$t('table.globalFilter')" />
           </IconField>
         </div>
       </template>
 
-      <template #empty>Keine Mitarbeiter gefunden</template>
+      <template #empty>{{ $t('employee.noEmployee') }}</template>
 
       <Column
         field="firstName"
@@ -111,8 +111,6 @@
         </template>
       </Column>
     </DataTable>
-
-    <p v-else>Keine Mitarbeiter gefunden</p>
   </div>
 
   <EmployeeDetailDrawer

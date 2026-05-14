@@ -5,13 +5,14 @@ const de = {
     inventory: 'Inventar',
     addItem: 'Neues Item',
     addEmployee: 'Neuer Mitarbeiter',
-    employee: 'Mitarbeiterliste'
+    employee: 'Mitarbeiterliste',
   },
 
   // ===== Views ======
   inventory: {
     title: 'Inventarliste',
     noItems: 'Keine Items im Inventar.',
+    loading: 'Inventar wird geladen...',
   },
 
   addItem: {
@@ -25,7 +26,9 @@ const de = {
   },
 
   employee: {
-    noEmployee: 'Keine Mitarbeiter gepflegt'
+    title: 'Mitarbeiterliste',
+    noEmployee: 'Keine Mitarbeiter gefunden',
+    loading: 'Mitarbeiter werden geladen...',
   },
 
   // ===== Forms =====
@@ -45,7 +48,7 @@ const de = {
     },
     button: {
       addItem: 'Item hinzufügen',
-    }
+    },
   },
 
   employeeForm: {
@@ -88,8 +91,13 @@ const de = {
     },
     button: {
       addEmployee: 'Mitarbeiter hinzufügen',
-    }
+    },
   },
+
+  // ===== Data-Tables =====
+  table: {
+    globalFilter: 'Suche in allen Spalten'
+  }
 }
 
 export default de

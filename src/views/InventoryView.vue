@@ -2,11 +2,11 @@
   <div class="inventory">
     <h1>{{ $t('inventory.title') }}</h1>
 
-    <p v-if="loading">Lade Items...</p>
+    <p v-if="loading">{{ $t('inventory.loading') }}</p>
     <p v-else-if="error">{{ error }}</p>
 
     <DataTable
-      v-else-if="tableItems.length > 0"
+      v-else
       v-model:filters="filters"
       :value="tableItems"
       paginator
@@ -28,7 +28,7 @@
         <div class="tableHeader">
           <IconField>
             <InputIcon class="pi pi-search" />
-            <InputText v-model="filters.global.value" placeholder="Suche in allen Spalten" />
+            <InputText v-model="filters.global.value" :placeholder="$t('table.globalFilter')" />
           </IconField>
         </div>
       </template>
@@ -128,7 +128,12 @@
         </template>
       </Column>
 
-      <Column field="notes" :header="$t('itemForm.label.notes')" style="min-width: 14rem" :showFilterMenu="false">
+      <Column
+        field="notes"
+        :header="$t('itemForm.label.notes')"
+        style="min-width: 14rem"
+        :showFilterMenu="false"
+      >
         <template #body="{ data }">
           {{ data.notes }}
         </template>
@@ -143,8 +148,6 @@
         </template>
       </Column>
     </DataTable>
-
-    <p v-else>{{ $t('inventory.noItems') }}</p>
   </div>
 </template>
 
