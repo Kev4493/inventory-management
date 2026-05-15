@@ -5,9 +5,24 @@
     <p v-if="loading">{{ $t('inventory.loading') }}</p>
     <p v-else-if="error">{{ error }}</p>
 
+    <Toolbar class="mb-6">
+      <template #start>
+        <Button label="New" icon="pi pi-plus" class="mr-2" @click="openCreateModal = true" />
+        <Button
+          label="Delete"
+          icon="pi pi-trash"
+          severity="danger"
+          variant="outlined"
+          :disabled="!selectedProducts || !selectedProducts.length"
+        />
+      </template>
+
+      <template #end> </template>
+    </Toolbar>
+
     <DataTable
-      v-else
       v-model:filters="filters"
+      v-model:selection="selectedProducts"
       :value="tableItems"
       paginator
       :rows="10"
@@ -34,6 +49,8 @@
       </template>
 
       <template #empty>{{ $t('inventory.noItems') }}</template>
+
+      <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
 
       <Column
         field="name"
@@ -148,6 +165,12 @@
         </template>
       </Column>
     </DataTable>
+
+    <!--
+      v-model:isOpen verbindet openCreateModal aus InventoryView.vue
+      mit defineModel('isOpen') in CreateItemDialog.vue.
+    -->
+    <CreateItemDialog v-model:isOpen="openCreateModal" />
   </div>
 </template>
 
@@ -162,9 +185,15 @@ import InputIcon from 'primevue/inputicon'
 import Select from 'primevue/select'
 import { allItems, loadAllItems } from '@/stores/inventoryStore.ts'
 import { getEmployeeNameById, loadAllEmployees } from '@/stores/employeeStore.ts'
+import Button from 'primevue/button'
+import Toolbar from 'primevue/toolbar'
+import CreateItemDialog from '@/components/CreateItemDialog.vue'
 
 const loading = ref(false)
 const error = ref<string | null>(null)
+const selectedProducts = ref()
+const openCreateModal = ref(false)
+
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   name: { value: null, matchMode: FilterMatchMode.CONTAINS },

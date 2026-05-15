@@ -5,9 +5,24 @@
     <p v-if="loading">{{ $t('employee.loading') }}</p>
     <p v-else-if="error">{{ error }}</p>
 
+    <Toolbar class="mb-6">
+      <template #start>
+        <Button label="New" icon="pi pi-plus" class="mr-2" />
+        <Button
+          label="Delete"
+          icon="pi pi-trash"
+          severity="danger"
+          variant="outlined"
+          :disabled="!selectedProducts || !selectedProducts.length"
+        />
+      </template>
+
+      <template #end> </template>
+    </Toolbar>
+
     <DataTable
-      v-else
       v-model:filters="filters"
+      v-model:selection="selectedProducts"
       :value="allEmployees"
       @row-click="openEmployeeDetails"
       paginator
@@ -28,7 +43,7 @@
       </template>
 
       <template #empty>{{ $t('employee.noEmployee') }}</template>
-
+      <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
       <Column
         field="firstName"
         :header="$t('employeeForm.label.firstName')"
@@ -134,12 +149,15 @@ import Select from 'primevue/select'
 import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts'
 import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue'
 import type { Employee } from '@/types/employee.ts'
+import Toolbar from 'primevue/toolbar'
+import Button from 'primevue/button'
 
 const { t } = useI18n()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const selectedEmployee = ref<Employee | null>(null)
 const isDrawerOpen = ref(false)
+const selectedProducts = ref()
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
