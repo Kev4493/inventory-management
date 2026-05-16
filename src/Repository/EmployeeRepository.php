@@ -9,6 +9,8 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Employee>
  */
+
+// Das Repository ist die Klasse, die für das Lesen aus der Datenbank zuständig ist.
 class EmployeeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

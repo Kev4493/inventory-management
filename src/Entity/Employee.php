@@ -7,6 +7,8 @@ use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+// Entity für die Employee = Darstellung einer Datenbanktabelle als PHP-Klasse
+// Jede Eigenschaft der Klasse entspricht einer Spalte in der Datenbank.
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 class Employee
 {
