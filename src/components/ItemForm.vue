@@ -1,6 +1,17 @@
 <template>
   <form @submit.prevent="handleSubmit" class="addItemForm">
     <div>
+      <label for="inventoryNumber">{{ $t('itemForm.label.inventoryNumber') }}:</label>
+      <input
+        v-model="newItem.inventoryNumber"
+        type="text"
+        id="inventoryNumber"
+        name="inventoryNumber"
+        required
+      />
+    </div>
+
+    <div>
       <label for="itemName">{{ $t('itemForm.label.productName') }}:</label>
       <input v-model="newItem.name" type="text" id="itemName" name="itemName" required />
     </div>
@@ -80,6 +91,7 @@ import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts'
 
 // Reaktives Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
 const newItem = reactive<Omit<Item, 'id'>>({
+  inventoryNumber: '',
   name: '',
   category: '',
   location: '',
@@ -115,6 +127,7 @@ async function handleSubmit() {
 
     // 2) Formular leeren (Object.assign(ziel, quelle) nimmt alles aus "Quelle" und schreibt es in "Ziel")
     Object.assign(newItem, {
+      inventoryNumber: '',
       name: '',
       category: '',
       location: '',

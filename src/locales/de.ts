@@ -35,6 +35,7 @@ const de = {
   itemForm: {
     label: {
       productName: 'Produktname',
+      inventoryNumber: 'Inventar-Nr.',
       category: 'Kategorie',
       location: 'Standort',
       assigned: 'Zugewiesen an',

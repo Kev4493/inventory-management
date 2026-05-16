@@ -29,6 +29,7 @@
       dataKey="id"
       filterDisplay="row"
       :globalFilterFields="[
+        'inventoryNumber',
         'name',
         'category',
         'location',
@@ -51,6 +52,23 @@
       <template #empty>{{ $t('inventory.noItems') }}</template>
 
       <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+
+      <Column
+        field="inventoryNumber"
+        :header="$t('itemForm.label.inventoryNumber')"
+        style="min-width: 12rem"
+        :showFilterMenu="false"
+      >
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            class="filterField"
+            type="text"
+            :placeholder="$t('itemForm.label.inventoryNumber')"
+            @input="filterCallback()"
+          />
+        </template>
+      </Column>
 
       <Column
         field="name"
@@ -196,6 +214,7 @@ const openCreateModal = ref(false)
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  inventoryNumber: { value: null, matchMode: FilterMatchMode.CONTAINS },
   name: { value: null, matchMode: FilterMatchMode.CONTAINS },
   category: { value: null, matchMode: FilterMatchMode.EQUALS },
   location: { value: null, matchMode: FilterMatchMode.EQUALS },
