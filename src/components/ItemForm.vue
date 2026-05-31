@@ -1,93 +1,119 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="addItemForm">
+  <form
+    @submit.prevent="handleSubmit"
+    class="addItemForm"
+  >
+    <!-- ===== Inventar-Nr.: ===== -->
     <div>
       <label for="inventoryNumber">{{ $t('itemForm.label.inventoryNumber') }}:</label>
-      <input
-        v-model="newItem.inventoryNumber"
-        type="text"
+      <InputText
         id="inventoryNumber"
+        type="text"
+        v-model="newItem.inventoryNumber"
         name="inventoryNumber"
         required
       />
     </div>
 
+    <!-- ===== Produktname: ===== -->
     <div>
       <label for="itemName">{{ $t('itemForm.label.productName') }}:</label>
-      <input v-model="newItem.name" type="text" id="itemName" name="itemName" required />
+      <InputText
+        id="itemName"
+        name="itemName"
+        type="text"
+        v-model="newItem.name"
+        required
+      />
     </div>
 
-    <div>
+    <!-- ===== Kategorie: ===== -->
+    <div class="flex flex-col">
       <label for="category">{{ $t('itemForm.label.category') }}:</label>
-      <select v-model="newItem.category" id="category" name="category" required>
-        <option value="" disabled>{{ $t('itemForm.placeholder.chooseCategory') }}</option>
-        <option value="Laptop">Laptop</option>
-        <option value="Bildschirm">Bildschirm</option>
-        <option value="Tastatur">Tastatur</option>
-        <option value="Maus">Maus</option>
-        <option value="Docking station">Docking station</option>
-        <option value="Headset">Headset</option>
-        <option value="Fernseher">Fernseher</option>
-        <option value="Kamera">Kamera</option>
-        <option value="Laptop Ständer">Laptop Ständer</option>
-        <option value="Beamer">Beamer</option>
-      </select>
+      <Select
+        id="category"
+        name="category"
+        v-model="newItem.category"
+        :options="categories"
+        optionLabel="name"
+        optionValue="name"
+        :placeholder="$t('itemForm.placeholder.chooseCategory')"
+      />
     </div>
 
-    <div>
+    <!-- ===== Standort: ===== -->
+    <div class="flex flex-col">
       <label for="location">{{ $t('itemForm.label.location') }}:</label>
-      <select v-model="newItem.location" id="location" name="location" required>
-        <option value="" disabled>{{ $t('itemForm.label.location') }}</option>
-        <option value="Messe Büro">Messe Büro</option>
-        <option value="GEOX Büro">GEOX Büro</option>
-        <option value="PM Büro">PM Büro</option>
-        <option value="GF Büro">GF Büro</option>
-        <option value="Kleines Büro">Kleines Büro</option>
-        <option value="Besprechungsraum">Besprechungsraum</option>
-      </select>
+      <Select
+        id="location"
+        name="location"
+        v-model="newItem.location"
+        :options="locations"
+        optionLabel="name"
+        optionValue="name"
+        :placeholder="$t('itemForm.placeholder.location')"
+      />
     </div>
 
-    <div>
+    <!-- ===== Zugewiesen an: ===== -->
+    <div class="flex flex-col">
       <label for="person">{{ $t('itemForm.label.assigned') }}:</label>
-      <select v-model="newItem.personId" :disabled="loading" id="person" name="person">
-        <option :value="null" disabled>{{ $t('itemForm.label.assigned') }}</option>
-        <option
-          v-for="employee in allEmployees"
-          :value="employee.id"
-          :key="employee.id"
-        >
-          {{ employee.firstName + ' ' + employee.lastName }}
-        </option>
-      </select>
-      <p v-if="error">{{ error }}</p>
+      <Select
+        id="person"
+        name="person"
+        v-model="newItem.personId"
+        :options="employeeOptions"
+        optionLabel="label"
+        optionValue="value"
+        :disabled="loading"
+        :placeholder="$t('itemForm.label.assigned')"
+      />
     </div>
 
-    <div>
+    <!-- ===== Anschaffungsjahr: ===== -->
+    <div class="flex flex-col">
       <label for="purchaseDate">{{ $t('itemForm.label.purchaseDate') }}:</label>
-      <input
-        type="number"
+      <InputNumber
         id="purchaseDate"
         name="purchaseDate"
+        v-model="newItem.purchaseDate"
+        :min="2000"
+        :max="new Date().getFullYear()"
+        :useGrouping="false"
         required
-        v-model.number="newItem.purchaseDate"
       />
     </div>
 
     <div>
       <label for="notes">{{ $t('itemForm.label.notes') }}:</label>
-      <textarea v-model="newItem.notes" id="notes" name="notes"></textarea>
+      <Textarea
+        id="notes"
+        name="notes"
+        v-model="newItem.notes"
+        rows="4"
+        autoResize
+      />
     </div>
 
-    <button type="submit" :disabled="isSaving" aria-busy="true">
+    <button
+      type="submit"
+      :disabled="isSaving"
+      aria-busy="true"
+    >
       {{ $t('itemForm.button.addItem') }}
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import { addItem } from '@/stores/inventoryStore.ts'
-import type { Item } from '@/types/item.ts'
-import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts'
+import { computed, onMounted, reactive, ref } from 'vue';
+import { addItem } from '@/stores/inventoryStore.ts';
+import type { Item } from '@/types/item.ts';
+import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts';
+import InputText from 'primevue/inputtext';
+import Select from 'primevue/select';
+import InputNumber from 'primevue/inputnumber';
+import Textarea from 'primevue/textarea';
 
 // Reaktives Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
 const newItem = reactive<Omit<Item, 'id'>>({
@@ -100,22 +126,48 @@ const newItem = reactive<Omit<Item, 'id'>>({
   notes: null,
 });
 
+const categories = ref([
+  { name: 'Laptop', code: 'laptop' },
+  { name: 'Bildschirm', code: 'monitor' },
+  { name: 'Tastatur', code: 'keyboard' },
+  { name: 'Maus', code: 'mouse' },
+  { name: 'Docking station', code: 'docking_station' },
+  { name: 'Headset', code: 'headset' },
+  { name: 'Fernseher', code: 'tv' },
+  { name: 'Kamera', code: 'camera' },
+  { name: 'Laptop Ständer', code: 'laptop_stand' },
+  { name: 'Beamer', code: 'projector' },
+]);
+
+const locations = ref([
+  { name: 'Besprechungsraum', code: 'besprechungsraum' },
+  { name: 'Eingangsbereich', code: 'eingangsbereich' },
+  { name: 'Küche', code: 'küche' },
+  { name: 'Online Marketing', code: 'om' },
+  { name: 'PM-Büro', code: 'pm' },
+  { name: 'Konfetti', code: 'konfetti' },
+  { name: 'Messe', code: 'messe' },
+  { name: 'GF-Büro', code: 'gf' },
+  { name: 'Kleines Büro', code: 'kleines_buero' },
+  { name: 'Home-Office', code: 'home_office' },
+]);
+
 const isSaving = ref(false);
-const loading = ref(true)
-const error = ref<string | null>(null)
+const loading = ref(true);
+const error = ref<string | null>(null);
 
 onMounted(async () => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
-    await loadAllEmployees()
+    await loadAllEmployees();
   } catch (e: any) {
-    error.value = e?.message || 'Konnte Mitarbeiter nicht laden'
+    error.value = e?.message || 'Konnte Mitarbeiter nicht laden';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
+});
 
 async function handleSubmit() {
   if (isSaving.value) return;
@@ -135,7 +187,6 @@ async function handleSubmit() {
       purchaseDate: new Date().getFullYear(),
       notes: null,
     });
-
   } catch (e: any) {
     console.error(e);
     alert(e?.message || 'Fehler beim Speichern');
@@ -143,6 +194,13 @@ async function handleSubmit() {
     isSaving.value = false;
   }
 }
+
+const employeeOptions = computed(() =>
+  allEmployees.value.map((employee) => ({
+    label: `${employee.firstName} ${employee.lastName}`,
+    value: employee.id,
+  })),
+);
 </script>
 
 <style scoped lang="scss">
@@ -151,18 +209,12 @@ async function handleSubmit() {
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-  max-width: 600px;
   padding: 2rem;
-
-  label {
-    font-weight: bold;
-  }
 
   input,
   textarea,
   select {
     padding: 0.5rem;
-    border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
     box-sizing: border-box;
@@ -185,7 +237,7 @@ async function handleSubmit() {
   }
 
   button[disabled] {
-    opacity: .6;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 }
