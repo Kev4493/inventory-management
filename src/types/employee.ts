@@ -9,7 +9,7 @@ export type Employee = {
   typeOfEmployment: '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer'
   department: '' | 'development' | 'marketing' | 'sales' | 'design' | 'management' | 'humanResources'
   emailAddress: string
-  dateOfEntry: string
-  dateOfLeaving: string | null
+  dateOfEntry: Date
+  dateOfLeaving: Date | null
   notes: string | null;
 };
