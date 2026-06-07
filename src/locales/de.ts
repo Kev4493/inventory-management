@@ -3,8 +3,6 @@ const de = {
   sidebar: {
     home: 'Home',
     inventory: 'Inventar',
-    addItem: 'Neues Item',
-    addEmployee: 'Neuer Mitarbeiter',
     employee: 'Mitarbeiterliste',
   },
 
@@ -13,16 +11,6 @@ const de = {
     title: 'Inventarliste',
     noItems: 'Keine Items im Inventar.',
     loading: 'Inventar wird geladen...',
-  },
-
-  addItem: {
-    title: 'Neues Item hinzufügen',
-    subtitle: 'Füge ein neues Produkt zu deinem Inventar hinzu.',
-  },
-
-  addEmployee: {
-    title: 'Neuen Mitarbeiter hinzufügen',
-    subtitle: 'Füge einen neuen Mitarbeiter zu deinem Team hinzu.',
   },
 
   employee: {
@@ -34,8 +22,8 @@ const de = {
   // ===== Forms =====
   itemForm: {
     label: {
-      productName: 'Produktname',
       inventoryNumber: 'Inventar-Nr.',
+      productName: 'Produktname',
       category: 'Kategorie',
       location: 'Standort',
       assigned: 'Zugewiesen an',
@@ -97,8 +85,8 @@ const de = {
 
   // ===== Data-Tables =====
   table: {
-    globalFilter: 'Suche in allen Spalten'
-  }
+    globalFilter: 'Suche in allen Spalten',
+  },
 }
 
 export default de

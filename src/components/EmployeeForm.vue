@@ -1,7 +1,7 @@
 <template>
   <form
     @submit.prevent="handleSubmit"
-    class="addItemForm"
+    class="addEmployeeForm"
   >
     <h2>{{ $t('employeeForm.headline.personalInfo') }}</h2>
 
@@ -243,12 +243,11 @@ async function handleSubmit() {
 </script>
 
 <style scoped lang="scss">
-.addItemForm {
+.addEmployeeForm {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-  max-width: 600px;
   padding: 2rem;
 
   label {

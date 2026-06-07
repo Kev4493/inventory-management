@@ -7,7 +7,12 @@
 
     <Toolbar class="mb-6">
       <template #start>
-        <Button label="New" icon="pi pi-plus" class="mr-2" />
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          class="mr-2"
+          @click="openCreateModal = true"
+        />
         <Button
           label="Delete"
           icon="pi pi-trash"
@@ -37,13 +42,19 @@
         <div class="tableHeader">
           <IconField>
             <InputIcon class="pi pi-search" />
-            <InputText v-model="filters.global.value" :placeholder="$t('table.globalFilter')" />
+            <InputText
+              v-model="filters.global.value"
+              :placeholder="$t('table.globalFilter')"
+            />
           </IconField>
         </div>
       </template>
 
       <template #empty>{{ $t('employee.noEmployee') }}</template>
-      <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+      <Column
+        selectionMode="multiple"
+        headerStyle="width: 3rem"
+      ></Column>
       <Column
         field="firstName"
         :header="$t('employeeForm.label.firstName')"
@@ -126,6 +137,8 @@
         </template>
       </Column>
     </DataTable>
+
+    <CreateEmployeeDialog v-model:isOpen="openCreateModal" />
   </div>
 
   <EmployeeDetailDrawer
@@ -137,27 +150,30 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { FilterMatchMode } from '@primevue/core/api'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import InputIcon from 'primevue/inputicon'
-import IconField from 'primevue/iconfield'
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
-import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts'
-import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue'
-import type { Employee } from '@/types/employee.ts'
-import Toolbar from 'primevue/toolbar'
-import Button from 'primevue/button'
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { FilterMatchMode } from '@primevue/core/api';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import InputIcon from 'primevue/inputicon';
+import IconField from 'primevue/iconfield';
+import InputText from 'primevue/inputtext';
+import Select from 'primevue/select';
+import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts';
+import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue';
+import type { Employee } from '@/types/employee.ts';
+import Toolbar from 'primevue/toolbar';
+import Button from 'primevue/button';
+import CreateItemDialog from '@/components/CreateItemDialog.vue';
+import CreateEmployeeDialog from '@/components/CreateEmployeeDialog.vue';
 
-const { t } = useI18n()
-const loading = ref(false)
-const error = ref<string | null>(null)
-const selectedEmployee = ref<Employee | null>(null)
-const isDrawerOpen = ref(false)
-const selectedProducts = ref()
+const { t } = useI18n();
+const loading = ref(false);
+const error = ref<string | null>(null);
+const selectedEmployee = ref<Employee | null>(null);
+const isDrawerOpen = ref(false);
+const selectedProducts = ref();
+const openCreateModal = ref(false);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -165,7 +181,7 @@ const filters = ref({
   lastName: { value: null, matchMode: FilterMatchMode.CONTAINS },
   typeOfEmployment: { value: null, matchMode: FilterMatchMode.EQUALS },
   department: { value: null, matchMode: FilterMatchMode.EQUALS },
-})
+});
 
 const employmentTypeOptions = computed(() => [
   { label: t('employeeForm.employmentType.fullTime'), value: 'fullTime' },
@@ -174,7 +190,7 @@ const employmentTypeOptions = computed(() => [
   { label: t('employeeForm.employmentType.intern'), value: 'intern' },
   { label: t('employeeForm.employmentType.trainee'), value: 'trainee' },
   { label: t('employeeForm.employmentType.freelancer'), value: 'freelancer' },
-])
+]);
 
 const departmentOptions = computed(() => [
   { label: t('employeeForm.department.development'), value: 'development' },
@@ -183,24 +199,24 @@ const departmentOptions = computed(() => [
   { label: t('employeeForm.department.design'), value: 'design' },
   { label: t('employeeForm.department.management'), value: 'management' },
   { label: t('employeeForm.department.humanResources'), value: 'humanResources' },
-])
+]);
 
 onMounted(async () => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
-    await loadAllEmployees()
+    await loadAllEmployees();
   } catch (e: any) {
-    error.value = e?.message || 'Konnte Mitarbeiter nicht laden'
+    error.value = e?.message || 'Konnte Mitarbeiter nicht laden';
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
+});
 
 function openEmployeeDetails(event: { data: Employee }) {
-  selectedEmployee.value = event.data
-  isDrawerOpen.value = true
+  selectedEmployee.value = event.data;
+  isDrawerOpen.value = true;
 }
 </script>
 

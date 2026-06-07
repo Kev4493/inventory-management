@@ -11,9 +11,6 @@
         <li :class="{ active: isActive('/inventory') }">
           <router-link to="/inventory">{{ $t('sidebar.inventory') }}</router-link>
         </li>
-        <li :class="{ active: isActive('/addEmployee') }">
-          <router-link to="/addEmployee">{{ $t('sidebar.addEmployee') }}</router-link>
-        </li>
         <li :class="{ active: isActive('/employee') }">
           <router-link to="/employee">{{ $t('sidebar.employee') }}</router-link>
         </li>
