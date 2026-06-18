@@ -32,8 +32,21 @@ export async function addEmployee(newEmployee: Omit<Employee, 'id'>) {
   await loadAllEmployees()
 }
 
-export function findEmployeeByID(id: number) {
-  return allEmployees.value.find(e => e.id === id)
+
+export async function deleteEmployees(ids: number[]) {
+  if (ids.length === 0) return
+
+  await Promise.all(
+    ids.map(async (id) => {
+      const res = await fetch(`/api/employees/${id}`, {
+        method: 'DELETE',
+      })
+
+      await handleFetchError(res)
+    }),
+  )
+
+  await loadAllEmployees()
 }
 
 export function getEmployeeNameById(id: number | null): string {

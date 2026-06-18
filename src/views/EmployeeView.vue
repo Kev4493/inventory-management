@@ -18,7 +18,8 @@
           icon="pi pi-trash"
           severity="danger"
           variant="outlined"
-          :disabled="!selectedProducts || !selectedProducts.length"
+          :disabled="!selectedEmployees.length"
+          @click="handleDelete"
         />
       </template>
 
@@ -27,7 +28,7 @@
 
     <DataTable
       v-model:filters="filters"
-      v-model:selection="selectedProducts"
+      v-model:selection="selectedEmployees"
       :value="allEmployees"
       @row-click="openEmployeeDetails"
       paginator
@@ -159,12 +160,11 @@ import InputIcon from 'primevue/inputicon';
 import IconField from 'primevue/iconfield';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
-import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts';
+import { allEmployees, deleteEmployees, loadAllEmployees } from '@/stores/employeeStore.ts';
 import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue';
 import type { Employee } from '@/types/employee.ts';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
-import CreateItemDialog from '@/components/CreateItemDialog.vue';
 import CreateEmployeeDialog from '@/components/CreateEmployeeDialog.vue';
 
 const { t } = useI18n();
@@ -172,7 +172,7 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 const selectedEmployee = ref<Employee | null>(null);
 const isDrawerOpen = ref(false);
-const selectedProducts = ref();
+const selectedEmployees = ref<Employee[]>([]);
 const openCreateModal = ref(false);
 
 const filters = ref({
@@ -217,6 +217,15 @@ onMounted(async () => {
 function openEmployeeDetails(event: { data: Employee }) {
   selectedEmployee.value = event.data;
   isDrawerOpen.value = true;
+}
+
+async function handleDelete() {
+  const ids = selectedEmployees.value.map((employee) => employee.id);
+
+  if (ids.length === 0) return;
+
+  await deleteEmployees(ids);
+  selectedEmployees.value = [];
 }
 </script>
 

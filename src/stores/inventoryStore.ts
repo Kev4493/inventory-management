@@ -32,6 +32,21 @@ export async function addItem(newItem: Omit<Item, 'id'>) {
   await loadAllItems()
 }
 
+export async function deleteItems(ids: number[]) {
+  if (ids.length === 0) return
+
+  await Promise.all(
+    ids.map(async (id) => {
+      const res = await fetch(`/api/items/${id}`, {
+        method: 'DELETE',
+      })
+
+      await handleFetchError(res)
+    }),
+  )
+
+  await loadAllItems()
+}
 
 // Fehlerbehandlung bei Fetch-Antworten
 async function handleFetchError(res: Response): Promise<void> {
