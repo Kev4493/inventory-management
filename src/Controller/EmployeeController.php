@@ -99,7 +99,22 @@ class EmployeeController
             'notes' => $employee->getNotes(),
         ], 201);
     }
-}
 
+    // DELETE /api/employees/{id} → entfernt einen Employee aus der DB anhand der ID
+    #[Route('/employees/{id}', methods: ['DELETE'])]
+    public function deleteEmployee(int $id, EmployeeRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $employee = $repo->find($id);
+
+        if (!$employee) {
+            return new JsonResponse(['error' => 'Employee not found'], 404);
+        }
+
+        $em->remove($employee);
+        $em->flush();
+
+        return new JsonResponse(null, 204);
+    }
+}
 
 

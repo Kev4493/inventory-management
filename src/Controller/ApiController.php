@@ -72,4 +72,20 @@ class ApiController
             'notes' => $item->getNotes(),
         ], 201);
     }
+
+    // DELETE /api/items/{id} → entfernt ein Inventar-Item aus der DB anhand der ID
+    #[Route('/items/{id}', methods: ['DELETE'])]
+    public function deleteItem(int $id, ItemRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $item = $repo->find($id);
+
+        if (!$item) {
+            return new JsonResponse(['error' => 'Item not found'], 404);
+        }
+
+        $em->remove($item);
+        $em->flush();
+
+        return new JsonResponse(null, 204);
+    }
 }
