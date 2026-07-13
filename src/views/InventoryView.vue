@@ -8,18 +8,18 @@
     <Toolbar class="mb-6">
       <template #start>
         <Button
-          label="New"
+          label="Hinzufügen"
           icon="pi pi-plus"
           class="mr-2"
           @click="openCreateModal = true"
         />
         <Button
-          label="Delete"
+          label="Löschen"
           icon="pi pi-trash"
           severity="danger"
           variant="outlined"
           :disabled="!selectedProducts || !selectedProducts.length"
-          @click="handleDelete"
+          @click="confirmDelete"
         />
       </template>
 
@@ -201,6 +201,7 @@
       mit defineModel('isOpen') in CreateItemDialog.vue.
     -->
     <CreateItemDialog v-model:isOpen="openCreateModal" />
+    <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
 
@@ -219,11 +220,16 @@ import Button from 'primevue/button';
 import Toolbar from 'primevue/toolbar';
 import CreateItemDialog from '@/components/CreateItemDialog.vue';
 import type { Item } from '@/types/item.ts';
+import ConfirmDialog from 'primevue/confirmdialog';
+import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
 
 const loading = ref(false);
 const error = ref<string | null>(null);
 const selectedProducts = ref<Item[]>([]);
 const openCreateModal = ref(false);
+const confirm = useConfirm();
+const toast = useToast();
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -286,9 +292,45 @@ async function handleDelete() {
 
   if (ids.length === 0) return;
 
-  await deleteItems(ids);
-  selectedProducts.value = [];
+  try {
+    await deleteItems(ids);
+    selectedProducts.value = [];
+    toast.add({
+      severity: 'success',
+      summary: 'Gelöscht',
+      detail: `${ids.length} Inventar-Elemente wurden gelöscht.`,
+      life: 3000,
+    });
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Löschen fehlgeschlagen',
+      detail: error instanceof Error ? error.message : 'Inventar-Elemente konnten nicht gelöscht werden.',
+      life: 4000,
+    });
+  }
 }
+
+const confirmDelete = () => {
+  confirm.require({
+    message: 'Möchtest du die ausgewählten Inventar-Elemente löschen?',
+    header: 'Inventar löschen',
+    icon: 'pi pi-info-circle',
+    rejectLabel: 'Abbrechen',
+    rejectProps: {
+      label: 'Abbrechen',
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      label: 'Löschen',
+      severity: 'danger',
+    },
+    accept: () => {
+      void handleDelete();
+    },
+  });
+};
 </script>
 
 <style scoped>

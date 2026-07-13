@@ -8,18 +8,18 @@
     <Toolbar class="mb-6">
       <template #start>
         <Button
-          label="New"
+          label="Hinzufügen"
           icon="pi pi-plus"
           class="mr-2"
           @click="openCreateModal = true"
         />
         <Button
-          label="Delete"
+          label="Löschen"
           icon="pi pi-trash"
           severity="danger"
           variant="outlined"
           :disabled="!selectedEmployees.length"
-          @click="handleDelete"
+          @click="confirmDelete"
         />
       </template>
 
@@ -140,6 +140,7 @@
     </DataTable>
 
     <CreateEmployeeDialog v-model:isOpen="openCreateModal" />
+    <ConfirmDialog></ConfirmDialog>
   </div>
 
   <EmployeeDetailDrawer
@@ -166,6 +167,9 @@ import type { Employee } from '@/types/employee.ts';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
 import CreateEmployeeDialog from '@/components/CreateEmployeeDialog.vue';
+import ConfirmDialog from 'primevue/confirmdialog';
+import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -174,6 +178,8 @@ const selectedEmployee = ref<Employee | null>(null);
 const isDrawerOpen = ref(false);
 const selectedEmployees = ref<Employee[]>([]);
 const openCreateModal = ref(false);
+const confirm = useConfirm();
+const toast = useToast();
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -224,9 +230,45 @@ async function handleDelete() {
 
   if (ids.length === 0) return;
 
-  await deleteEmployees(ids);
-  selectedEmployees.value = [];
+  try {
+    await deleteEmployees(ids);
+    selectedEmployees.value = [];
+    toast.add({
+      severity: 'success',
+      summary: 'Gelöscht',
+      detail: `${ids.length} Mitarbeiter wurden gelöscht.`,
+      life: 3000,
+    });
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Löschen fehlgeschlagen',
+      detail: error instanceof Error ? error.message : 'Mitarbeiter konnten nicht gelöscht werden.',
+      life: 4000,
+    });
+  }
 }
+
+const confirmDelete = () => {
+  confirm.require({
+    message: 'Möchtest du die ausgewählten Mitarbeiter löschen?',
+    header: 'Mitarbeiter löschen',
+    icon: 'pi pi-info-circle',
+    rejectLabel: 'Abbrechen',
+    rejectProps: {
+      label: 'Abbrechen',
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      label: 'Löschen',
+      severity: 'danger',
+    },
+    accept: () => {
+      void handleDelete();
+    },
+  });
+};
 </script>
 
 <style scoped lang="scss">

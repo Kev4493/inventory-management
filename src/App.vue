@@ -1,6 +1,7 @@
 <template>
   <div class="app-layout">
     <Sidebar></Sidebar>
+    <Toast position="top-right" />
     <main class="content">
       <RouterView />
     </main>
@@ -9,6 +10,7 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import Toast from 'primevue/toast'
 import Sidebar from '@/components/Sidebar.vue'
 </script>
 
