@@ -9,10 +9,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+// Der Controller enthält die eigentliche Logik hinter den API-Endpunkten -
+// er empfängt die Anfrage vom Frontend, verarbeitet sie und schickt eine Antwort zurück.
+
 #[Route('/api')]
 class EmployeeController
 {
-    // GET /api/employees → Employee Liste laden
+    // GET /api/employees → lädt alle Einträge aus der DB und gibt sie als JSON zurück
     #[Route('/employees', methods: ['GET'])]
     public function loadEmployees(EmployeeRepository $repo): JsonResponse
     {
@@ -36,7 +39,7 @@ class EmployeeController
         return new JsonResponse($data);
     }
 
-    // POST /api/employees → neues Employee anlegen
+    // POST /api/employees → nimmt die Daten vom Frontend entgegen und legt einen neuen Eintrag in der DB an.
     #[Route('/employees', methods: ['POST'])]
     public function createEmployee(Request $request, EntityManagerInterface $em): JsonResponse
     {
@@ -96,7 +99,22 @@ class EmployeeController
             'notes' => $employee->getNotes(),
         ], 201);
     }
-}
 
+    // DELETE /api/employees/{id} → entfernt einen Employee aus der DB anhand der ID
+    #[Route('/employees/{id}', methods: ['DELETE'])]
+    public function deleteEmployee(int $id, EmployeeRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $employee = $repo->find($id);
+
+        if (!$employee) {
+            return new JsonResponse(['error' => 'Employee not found'], 404);
+        }
+
+        $em->remove($employee);
+        $em->flush();
+
+        return new JsonResponse(null, 204);
+    }
+}
 
 

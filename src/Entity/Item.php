@@ -6,6 +6,8 @@ use App\Repository\ItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+// Entity für die Items = Darstellung einer Datenbanktabelle als PHP-Klasse
+// Jede Eigenschaft der Klasse entspricht einer Spalte in der Datenbank.
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
 class Item
 {
@@ -24,7 +26,10 @@ class Item
     private ?string $location = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $person = null;
+    private ?string $inventoryNumber = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $personId = null;
 
     #[ORM\Column]
     private ?int $purchaseDate = null;
@@ -73,14 +78,26 @@ class Item
         return $this;
     }
 
-    public function getPerson(): ?string
+    public function getInventoryNumber(): ?string
     {
-        return $this->person;
+        return $this->inventoryNumber;
     }
 
-    public function setPerson(?string $person): static
+    public function setInventoryNumber(?string $inventoryNumber): static
     {
-        $this->person = $person;
+        $this->inventoryNumber = $inventoryNumber;
+
+        return $this;
+    }
+
+    public function getPersonId(): ?int
+    {
+        return $this->personId;
+    }
+
+    public function setPersonId(?int $personId): static
+    {
+        $this->personId = $personId;
 
         return $this;
     }

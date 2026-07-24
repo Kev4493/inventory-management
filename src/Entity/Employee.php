@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\EmployeeRepository;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+// Entity für die Employee = Darstellung einer Datenbanktabelle als PHP-Klasse
+// Jede Eigenschaft der Klasse entspricht einer Spalte in der Datenbank.
 #[ORM\Entity(repositoryClass: EmployeeRepository::class)]
 class Employee
 {
@@ -39,10 +42,10 @@ class Employee
     private ?string $email_address = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $date_of_entry = null;
+    private ?DateTimeInterface $date_of_entry = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $date_of_leaving = null;
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?DateTimeInterface $date_of_leaving = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $notes = null;
@@ -148,27 +151,25 @@ class Employee
         return $this;
     }
 
-    public function getDateOfEntry(): ?\DateTime
+    public function getDateOfEntry(): ?DateTimeInterface
     {
         return $this->date_of_entry;
     }
 
-    public function setDateOfEntry(\DateTime $date_of_entry): static
+    public function setDateOfEntry(DateTimeInterface $d): static
     {
-        $this->date_of_entry = $date_of_entry;
-
+        $this->date_of_entry = $d;
         return $this;
     }
 
-    public function getDateOfLeaving(): ?\DateTime
+    public function getDateOfLeaving(): ?DateTimeInterface
     {
         return $this->date_of_leaving;
     }
 
-    public function setDateOfLeaving(\DateTime $date_of_leaving): static
+    public function setDateOfLeaving(?DateTimeInterface $d): static
     {
-        $this->date_of_leaving = $date_of_leaving;
-
+        $this->date_of_leaving = $d;
         return $this;
     }
 
