@@ -4,6 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  h1 {
+    @apply mb-6 text-3xl font-semibold leading-tight;
+  }
+
+  h2 {
+    @apply mb-4 text-2xl font-semibold leading-tight;
+  }
+
+  h3 {
+    @apply mb-3 text-xl font-medium leading-snug;
+  }
+}
+
 body {
   font-family: "ChillaxRegular", sans-serif;
   margin: 0;
