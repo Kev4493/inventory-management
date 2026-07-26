@@ -37,6 +37,7 @@ const de = {
     },
     button: {
       addItem: 'Item hinzufügen',
+      saveItem: 'Änderungen speichern',
     },
   },
 
@@ -80,6 +81,7 @@ const de = {
     },
     button: {
       addEmployee: 'Mitarbeiter hinzufügen',
+      saveEmployee: 'Änderungen speichern',
     },
   },
 

@@ -14,6 +14,15 @@
           @click="openCreateModal = true"
         />
         <Button
+          label="Bearbeiten"
+          icon="pi pi-pencil"
+          class="mr-2"
+          severity="secondary"
+          variant="outlined"
+          :disabled="selectedEmployees.length !== 1"
+          @click="openEditModal = true"
+        />
+        <Button
           label="Löschen"
           icon="pi pi-trash"
           severity="danger"
@@ -139,7 +148,17 @@
       </Column>
     </DataTable>
 
-    <CreateEmployeeDialog v-model:isOpen="openCreateModal" />
+    <!-- ===== Create Modal: =====-->
+    <EmployeeDialog
+      v-model:isOpen="openCreateModal"
+    />
+
+    <!-- ===== Edit Modal: =====-->
+    <EmployeeDialog
+      v-model:isOpen="openEditModal"
+      :employee="selectedEmployees[0] ?? null"
+      @saved="selectedEmployees = []"
+    />
     <ConfirmDialog></ConfirmDialog>
   </div>
 
@@ -166,7 +185,7 @@ import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue';
 import type { Employee } from '@/types/employee.ts';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
-import CreateEmployeeDialog from '@/components/CreateEmployeeDialog.vue';
+import EmployeeDialog from '@/components/EmployeeDialog.vue';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
@@ -178,6 +197,7 @@ const selectedEmployee = ref<Employee | null>(null);
 const isDrawerOpen = ref(false);
 const selectedEmployees = ref<Employee[]>([]);
 const openCreateModal = ref(false);
+const openEditModal = ref(false);
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -213,8 +233,8 @@ onMounted(async () => {
 
   try {
     await loadAllEmployees();
-  } catch (e: any) {
-    error.value = e?.message || 'Konnte Mitarbeiter nicht laden';
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : 'Konnte Mitarbeiter nicht laden';
   } finally {
     loading.value = false;
   }

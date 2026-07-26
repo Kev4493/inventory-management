@@ -14,6 +14,15 @@
           @click="openCreateModal = true"
         />
         <Button
+          label="Bearbeiten"
+          icon="pi pi-pencil"
+          class="mr-2"
+          severity="secondary"
+          variant="outlined"
+          :disabled="selectedProducts.length !== 1"
+          @click="openEditModal = true"
+        />
+        <Button
           label="Löschen"
           icon="pi pi-trash"
           severity="danger"
@@ -196,11 +205,17 @@
       </Column>
     </DataTable>
 
-    <!--
-      v-model:isOpen verbindet openCreateModal aus InventoryView.vue
-      mit defineModel('isOpen') in CreateItemDialog.vue.
-    -->
-    <CreateItemDialog v-model:isOpen="openCreateModal" />
+    <!-- ===== Create Modal: =====-->
+    <ItemDialog
+      v-model:isOpen="openCreateModal"
+    />
+
+    <!-- ===== Edit Modal: =====-->
+    <ItemDialog
+      v-model:isOpen="openEditModal"
+      :item="selectedProducts[0] ?? null"
+      @saved="selectedProducts = []"
+    />
     <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
@@ -218,7 +233,7 @@ import { allItems, deleteItems, loadAllItems } from '@/stores/inventoryStore.ts'
 import { getEmployeeNameById, loadAllEmployees } from '@/stores/employeeStore.ts';
 import Button from 'primevue/button';
 import Toolbar from 'primevue/toolbar';
-import CreateItemDialog from '@/components/CreateItemDialog.vue';
+import ItemDialog from '@/components/ItemDialog.vue';
 import type { Item } from '@/types/item.ts';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
@@ -228,6 +243,7 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 const selectedProducts = ref<Item[]>([]);
 const openCreateModal = ref(false);
+const openEditModal = ref(false);
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -276,10 +292,10 @@ onMounted(async () => {
     // Beide API-Requests gleichzeitig starten (parallel, nicht nacheinander)
     // Promise.all wartet bis BEIDE fertig sind, bevor es weitergeht
     await Promise.all([loadAllItems(), loadAllEmployees()]);
-  } catch (e: any) {
+  } catch (e: unknown) {
     // Falls einer der Requests fehlschlägt, Fehlermeldung speichern
     // e?.message nimmt die Fehlermeldung des Servers, falls vorhanden
-    error.value = e?.message || 'Konnte Daten nicht laden';
+    error.value = e instanceof Error ? e.message : 'Konnte Daten nicht laden';
     // finally läuft IMMER – egal ob Erfolg oder Fehler
     // Ladezustand deaktivieren, damit die Tabelle oder der Fehler angezeigt wird
   } finally {
@@ -305,7 +321,8 @@ async function handleDelete() {
     toast.add({
       severity: 'error',
       summary: 'Löschen fehlgeschlagen',
-      detail: error instanceof Error ? error.message : 'Inventar-Elemente konnten nicht gelöscht werden.',
+      detail:
+        error instanceof Error ? error.message : 'Inventar-Elemente konnten nicht gelöscht werden.',
       life: 4000,
     });
   }

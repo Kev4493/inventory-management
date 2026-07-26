@@ -100,14 +100,14 @@
       :disabled="isSaving"
       aria-busy="true"
     >
-      {{ $t('itemForm.button.addItem') }}
+      {{ item ? $t('itemForm.button.saveItem') : $t('itemForm.button.addItem') }}
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
-import { addItem } from '@/stores/inventoryStore.ts';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { addItem, updateItem } from '@/stores/inventoryStore.ts';
 import type { Item } from '@/types/item.ts';
 import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts';
 import InputText from 'primevue/inputtext';
@@ -115,8 +115,15 @@ import Select from 'primevue/select';
 import InputNumber from 'primevue/inputnumber';
 import Textarea from 'primevue/textarea';
 
-// Reaktives Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
-const newItem = reactive<Omit<Item, 'id'>>({
+const props = defineProps<{
+  item?: Item | null;
+}>();
+
+const emit = defineEmits<{
+  saved: [];
+}>();
+
+const emptyItem = (): Omit<Item, 'id'> => ({
   inventoryNumber: '',
   name: '',
   category: '',
@@ -125,6 +132,29 @@ const newItem = reactive<Omit<Item, 'id'>>({
   purchaseDate: new Date().getFullYear(),
   notes: null,
 });
+
+// Reaktives Objekt für ein neu hinzuzufügendes Item (wird direkt durch V-model befüllt)
+const newItem = reactive<Omit<Item, 'id'>>(emptyItem());
+
+watch(
+  () => props.item,
+  (item) => {
+    if (item) {
+      Object.assign(newItem, {
+        inventoryNumber: item.inventoryNumber,
+        name: item.name,
+        category: item.category,
+        location: item.location,
+        personId: item.personId,
+        purchaseDate: item.purchaseDate,
+        notes: item.notes,
+      });
+    } else {
+      Object.assign(newItem, emptyItem());
+    }
+  },
+  { immediate: true },
+);
 
 const categories = ref([
   { name: 'Laptop', code: 'laptop' },
@@ -162,8 +192,8 @@ onMounted(async () => {
 
   try {
     await loadAllEmployees();
-  } catch (e: any) {
-    error.value = e?.message || 'Konnte Mitarbeiter nicht laden';
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : 'Konnte Mitarbeiter nicht laden';
   } finally {
     loading.value = false;
   }
@@ -174,22 +204,18 @@ async function handleSubmit() {
   isSaving.value = true;
 
   try {
-    // 1) Funktion aufrufen, die das Item in der DB speichert
-    await addItem(newItem);
+    const payload = { ...newItem };
+    if (props.item) {
+      await updateItem(props.item.id, payload);
+    } else {
+      await addItem(payload);
+    }
 
-    // 2) Formular leeren (Object.assign(ziel, quelle) nimmt alles aus "Quelle" und schreibt es in "Ziel")
-    Object.assign(newItem, {
-      inventoryNumber: '',
-      name: '',
-      category: '',
-      location: '',
-      personId: null,
-      purchaseDate: new Date().getFullYear(),
-      notes: null,
-    });
-  } catch (e: any) {
+    Object.assign(newItem, emptyItem());
+    emit('saved');
+  } catch (e: unknown) {
     console.error(e);
-    alert(e?.message || 'Fehler beim Speichern');
+    alert(e instanceof Error ? e.message : 'Fehler beim Speichern');
   } finally {
     isSaving.value = false;
   }

@@ -159,22 +159,34 @@
       :disabled="isSaving"
       aria-busy="true"
     >
-      {{ $t('employeeForm.button.addEmployee') }}
+      {{
+        employee
+          ? $t('employeeForm.button.saveEmployee')
+          : $t('employeeForm.button.addEmployee')
+      }}
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
 import type { Employee } from '@/types/employee.ts';
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { addEmployee } from '@/stores/employeeStore.ts';
+import { addEmployee, updateEmployee } from '@/stores/employeeStore.ts';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import DatePicker from 'primevue/datepicker';
 import Textarea from 'primevue/textarea';
 
 const { t } = useI18n();
+
+const props = defineProps<{
+  employee?: Employee | null;
+}>();
+
+const emit = defineEmits<{
+  saved: [];
+}>();
 
 const employmentTypes = ref([
   { name: t('employeeForm.employmentType.fullTime'), code: 'fullTime' },
@@ -194,8 +206,7 @@ const departments = ref([
   { name: t('employeeForm.department.humanResources'), code: 'humanResources' },
 ]);
 
-// Objekt für ein neu hinzuzufügenden Mitarbeiter
-const newEmployee = reactive<Omit<Employee, 'id'>>({
+const emptyEmployee = (): Omit<Employee, 'id'> => ({
   firstName: '',
   lastName: '',
   street: '',
@@ -206,8 +217,35 @@ const newEmployee = reactive<Omit<Employee, 'id'>>({
   department: '',
   dateOfEntry: new Date(),
   dateOfLeaving: null,
-  notes: null
+  notes: null,
 });
+
+// Objekt für ein neu hinzuzufügenden Mitarbeiter
+const newEmployee = reactive<Omit<Employee, 'id'>>(emptyEmployee());
+
+watch(
+  () => props.employee,
+  (employee) => {
+    if (employee) {
+      Object.assign(newEmployee, {
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        street: employee.street,
+        zipCode: employee.zipCode,
+        city: employee.city,
+        typeOfEmployment: employee.typeOfEmployment,
+        emailAddress: employee.emailAddress,
+        department: employee.department,
+        dateOfEntry: new Date(employee.dateOfEntry),
+        dateOfLeaving: employee.dateOfLeaving ? new Date(employee.dateOfLeaving) : null,
+        notes: employee.notes,
+      });
+    } else {
+      Object.assign(newEmployee, emptyEmployee());
+    }
+  },
+  { immediate: true },
+);
 
 const isSaving = ref(false);
 
@@ -216,26 +254,18 @@ async function handleSubmit() {
   isSaving.value = true;
 
   try {
-    // 1) Funktion aufrufen, die den MA in der DB speichert
-    await addEmployee(newEmployee);
+    const payload = { ...newEmployee };
+    if (props.employee) {
+      await updateEmployee(props.employee.id, payload);
+    } else {
+      await addEmployee(payload);
+    }
 
-    // 2. Formular leeren
-    Object.assign(newEmployee, {
-      firstName: '',
-      lastName: '',
-      street: '',
-      zipCode: '',
-      city: '',
-      typeOfEmployment: '' as '' | 'fullTime' | 'partTime' | 'workingStudent' | 'intern' | 'trainee' | 'freelancer',
-      emailAddress: '',
-      department: '',
-      dateOfEntry: '',
-      dateOfLeaving: null,
-      notes: null
-    });
-  } catch (e: any) {
+    Object.assign(newEmployee, emptyEmployee());
+    emit('saved');
+  } catch (e: unknown) {
     console.error(e);
-    alert(e?.message || 'Fehler beim Speichern');
+    alert(e instanceof Error ? e.message : 'Fehler beim Speichern');
   } finally {
     isSaving.value = false;
   }

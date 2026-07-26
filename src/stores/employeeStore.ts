@@ -32,6 +32,17 @@ export async function addEmployee(newEmployee: Omit<Employee, 'id'>) {
   await loadAllEmployees()
 }
 
+export async function updateEmployee(id: number, employee: Omit<Employee, 'id'>) {
+  const res = await fetch(`/api/employees/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(employee),
+  })
+
+  await handleFetchError(res)
+  await loadAllEmployees()
+}
+
 
 export async function deleteEmployees(ids: number[]) {
   if (ids.length === 0) return

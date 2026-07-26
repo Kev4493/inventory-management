@@ -32,6 +32,17 @@ export async function addItem(newItem: Omit<Item, 'id'>) {
   await loadAllItems()
 }
 
+export async function updateItem(id: number, item: Omit<Item, 'id'>) {
+  const res = await fetch(`/api/items/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item),
+  })
+
+  await handleFetchError(res)
+  await loadAllItems()
+}
+
 export async function deleteItems(ids: number[]) {
   if (ids.length === 0) return
 
