@@ -73,6 +73,49 @@ class ApiController
         ], 201);
     }
 
+    // PUT /api/items/{id} → aktualisiert ein vorhandenes Inventar-Item.
+    #[Route('/items/{id}', methods: ['PUT'])]
+    public function updateItem(int $id, Request $request, ItemRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $item = $repo->find($id);
+
+        if (!$item) {
+            return new JsonResponse(['error' => 'Item not found'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+        }
+
+        foreach (['name', 'category', 'location', 'inventoryNumber', 'purchaseDate'] as $f) {
+            if (!array_key_exists($f, $data) || $data[$f] === '') {
+                return new JsonResponse(['error' => "Missing field: $f"], 400);
+            }
+        }
+
+        $item->setName((string) $data['name']);
+        $item->setCategory((string) $data['category']);
+        $item->setLocation((string) $data['location']);
+        $item->setInventoryNumber((string) $data['inventoryNumber']);
+        $item->setPersonId(isset($data['personId']) ? (int) $data['personId'] : null);
+        $item->setPurchaseDate((int) $data['purchaseDate']);
+        $item->setNotes($data['notes'] ?? null);
+
+        $em->flush();
+
+        return new JsonResponse([
+            'id' => $item->getId(),
+            'name' => $item->getName(),
+            'category' => $item->getCategory(),
+            'location' => $item->getLocation(),
+            'inventoryNumber' => $item->getInventoryNumber(),
+            'personId' => $item->getPersonId(),
+            'purchaseDate' => $item->getPurchaseDate(),
+            'notes' => $item->getNotes(),
+        ]);
+    }
+
     // DELETE /api/items/{id} → entfernt ein Inventar-Item aus der DB anhand der ID
     #[Route('/items/{id}', methods: ['DELETE'])]
     public function deleteItem(int $id, ItemRepository $repo, EntityManagerInterface $em): JsonResponse

@@ -100,6 +100,64 @@ class EmployeeController
         ], 201);
     }
 
+    // PUT /api/employees/{id} → aktualisiert einen vorhandenen Mitarbeiter.
+    #[Route('/employees/{id}', methods: ['PUT'])]
+    public function updateEmployee(int $id, Request $request, EmployeeRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $employee = $repo->find($id);
+
+        if (!$employee) {
+            return new JsonResponse(['error' => 'Employee not found'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+        }
+
+        foreach (['firstName', 'lastName', 'street', 'zipCode', 'city', 'typeOfEmployment', 'department', 'emailAddress', 'dateOfEntry'] as $f) {
+            if (!array_key_exists($f, $data) || $data[$f] === '') {
+                return new JsonResponse(['error' => "Missing field: $f"], 400);
+            }
+        }
+
+        try {
+            $dateOfEntry = new \DateTime($data['dateOfEntry']);
+            $dateOfLeaving = !empty($data['dateOfLeaving']) ? new \DateTime($data['dateOfLeaving']) : null;
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Invalid date format'], 400);
+        }
+
+        $employee->setFirstName((string) $data['firstName']);
+        $employee->setLastName((string) $data['lastName']);
+        $employee->setStreet((string) $data['street']);
+        $employee->setZipCode((string) $data['zipCode']);
+        $employee->setCity((string) $data['city']);
+        $employee->setTypeOfEmployment((string) $data['typeOfEmployment']);
+        $employee->setDepartment((string) $data['department']);
+        $employee->setEmailAddress((string) $data['emailAddress']);
+        $employee->setDateOfEntry($dateOfEntry);
+        $employee->setDateOfLeaving($dateOfLeaving);
+        $employee->setNotes($data['notes'] ?? null);
+
+        $em->flush();
+
+        return new JsonResponse([
+            'id' => $employee->getId(),
+            'firstName' => $employee->getFirstName(),
+            'lastName' => $employee->getLastName(),
+            'street' => $employee->getStreet(),
+            'zipCode' => $employee->getZipCode(),
+            'city' => $employee->getCity(),
+            'typeOfEmployment' => $employee->getTypeOfEmployment(),
+            'department' => $employee->getDepartment(),
+            'emailAddress' => $employee->getEmailAddress(),
+            'dateOfEntry' => $employee->getDateOfEntry()?->format('Y-m-d'),
+            'dateOfLeaving' => $employee->getDateOfLeaving()?->format('Y-m-d'),
+            'notes' => $employee->getNotes(),
+        ]);
+    }
+
     // DELETE /api/employees/{id} → entfernt einen Employee aus der DB anhand der ID
     #[Route('/employees/{id}', methods: ['DELETE'])]
     public function deleteEmployee(int $id, EmployeeRepository $repo, EntityManagerInterface $em): JsonResponse
@@ -116,5 +174,4 @@ class EmployeeController
         return new JsonResponse(null, 204);
     }
 }
-
 
