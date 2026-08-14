@@ -151,13 +151,14 @@
     <!-- ===== Create Modal: =====-->
     <EmployeeDialog
       v-model:isOpen="openCreateModal"
+      @saved="handleEmployeeCreated"
     />
 
     <!-- ===== Edit Modal: =====-->
     <EmployeeDialog
       v-model:isOpen="openEditModal"
       :employee="selectedEmployees[0] ?? null"
-      @saved="selectedEmployees = []"
+      @saved="handleEmployeeUpdated"
     />
     <ConfirmDialog></ConfirmDialog>
   </div>
@@ -226,6 +227,25 @@ const departmentOptions = computed(() => [
   { label: t('employeeForm.department.management'), value: 'management' },
   { label: t('employeeForm.department.humanResources'), value: 'humanResources' },
 ]);
+
+function handleEmployeeCreated() {
+  toast.add({
+    severity: 'success',
+    summary: 'Hinzugefügt',
+    detail: 'Der Mitarbeiter wurde erfolgreich hinzugefügt.',
+    life: 3000,
+  });
+}
+
+function handleEmployeeUpdated() {
+  selectedEmployees.value = [];
+  toast.add({
+    severity: 'success',
+    summary: 'Bearbeitet',
+    detail: 'Der Mitarbeiter wurde erfolgreich bearbeitet.',
+    life: 3000,
+  });
+}
 
 onMounted(async () => {
   loading.value = true;

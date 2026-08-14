@@ -208,13 +208,14 @@
     <!-- ===== Create Modal: =====-->
     <ItemDialog
       v-model:isOpen="openCreateModal"
+      @saved="handleItemCreated"
     />
 
     <!-- ===== Edit Modal: =====-->
     <ItemDialog
       v-model:isOpen="openEditModal"
       :item="selectedProducts[0] ?? null"
-      @saved="selectedProducts = []"
+      @saved="handleItemUpdated"
     />
     <ConfirmDialog></ConfirmDialog>
   </div>
@@ -283,6 +284,25 @@ const employeeOptions = computed(() =>
 const purchaseYearOptions = computed(() =>
   [...new Set(tableItems.value.map((item) => item.purchaseDate))].sort((a, b) => a - b),
 );
+
+function handleItemCreated() {
+  toast.add({
+    severity: 'success',
+    summary: 'Hinzugefügt',
+    detail: 'Das Inventar-Element wurde erfolgreich hinzugefügt.',
+    life: 3000,
+  });
+}
+
+function handleItemUpdated() {
+  selectedProducts.value = [];
+  toast.add({
+    severity: 'success',
+    summary: 'Bearbeitet',
+    detail: 'Das Inventar-Element wurde erfolgreich bearbeitet.',
+    life: 3000,
+  });
+}
 
 onMounted(async () => {
   loading.value = true;
