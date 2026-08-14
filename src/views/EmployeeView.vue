@@ -181,7 +181,13 @@ import InputIcon from 'primevue/inputicon';
 import IconField from 'primevue/iconfield';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
-import { allEmployees, deleteEmployees, loadAllEmployees } from '@/stores/employeeStore.ts';
+import {
+  allEmployees,
+  deleteEmployees,
+  employeesError,
+  employeesLoading,
+  ensureEmployeesLoaded,
+} from '@/stores/employeeStore.ts';
 import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue';
 import type { Employee } from '@/types/employee.ts';
 import Toolbar from 'primevue/toolbar';
@@ -192,8 +198,6 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 
 const { t } = useI18n();
-const loading = ref(false);
-const error = ref<string | null>(null);
 const selectedEmployee = ref<Employee | null>(null);
 const isDrawerOpen = ref(false);
 const selectedEmployees = ref<Employee[]>([]);
@@ -201,6 +205,9 @@ const openCreateModal = ref(false);
 const openEditModal = ref(false);
 const confirm = useConfirm();
 const toast = useToast();
+
+const loading = employeesLoading;
+const error = employeesError;
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -248,15 +255,10 @@ function handleEmployeeUpdated() {
 }
 
 onMounted(async () => {
-  loading.value = true;
-  error.value = null;
-
   try {
-    await loadAllEmployees();
-  } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Konnte Mitarbeiter nicht laden';
-  } finally {
-    loading.value = false;
+    await ensureEmployeesLoaded();
+  } catch {
+    // Der Store stellt die Fehlermeldung für die View bereit.
   }
 });
 

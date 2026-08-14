@@ -123,7 +123,7 @@
 import { computed, onMounted } from 'vue';
 import Drawer from 'primevue/drawer';
 import type { Employee } from '@/types/employee.ts';
-import { allItems, loadAllItems } from '@/stores/inventoryStore.ts';
+import { allItems, ensureItemsLoaded } from '@/stores/inventoryStore.ts';
 import Card from 'primevue/card';
 
 const props = defineProps<{
@@ -148,9 +148,10 @@ const assignedItems = computed(() =>
 );
 
 onMounted(async () => {
-  // Items nur laden falls noch nicht vorhanden
-  if (allItems.value.length === 0) {
-    await loadAllItems();
+  try {
+    await ensureItemsLoaded();
+  } catch {
+    // Der Inventory-Store hält den Fehlerzustand.
   }
 });
 </script>

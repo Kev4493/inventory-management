@@ -7,16 +7,56 @@ import type { Item } from '@/types/item'
 
 export const allItems = ref<Item[]>([])
 
+// Diese drei Werte beschreiben den Zustand des API-Requests:
+// loading = Request läuft, error = letzter Fehler, loaded = mindestens einmal erfolgreich geladen.
+// loaded ist wichtig, weil auch eine leere Item-Liste ein gültiges Ergebnis sein kann.
+export const itemsLoading = ref(false)
+export const itemsError = ref<string | null>(null)
+export const itemsLoaded = ref(false)
 
-export async function loadAllItems() {
-  const res = await fetch('/api/items', {
-    method: 'GET',
-  })
+// Solange ein Request läuft, speichern wir hier seine Promise.
+// Rufen mehrere Komponenten gleichzeitig loadAllItems() auf, erhalten alle
+// dieselbe Promise und es wird nur ein Request an das Backend geschickt.
+let itemsLoadPromise: Promise<void> | null = null
 
-  await handleFetchError(res)
 
-  const data = (await res.json()) as Item[]
-  allItems.value = data
+export function loadAllItems(): Promise<void> {
+  // Einen bereits laufenden Request nicht noch einmal starten.
+  if (itemsLoadPromise) return itemsLoadPromise
+
+  itemsLoading.value = true
+  itemsError.value = null
+
+  itemsLoadPromise = (async () => {
+    try {
+      const res = await fetch('/api/items', {
+        method: 'GET',
+      })
+
+      await handleFetchError(res)
+
+      const data = (await res.json()) as Item[]
+      allItems.value = data
+      // Erst nach einem erfolgreichen Request gelten die Daten als geladen.
+      itemsLoaded.value = true
+    } catch (error) {
+      itemsError.value = error instanceof Error ? error.message : 'Konnte Inventar nicht laden'
+      throw error
+    } finally {
+      // finally läuft bei Erfolg und Fehler und räumt den Request-Zustand immer auf.
+      itemsLoading.value = false
+      itemsLoadPromise = null
+    }
+  })()
+
+  return itemsLoadPromise
+}
+
+export function ensureItemsLoaded(): Promise<void> {
+  // Für Komponenten, die nur sicherstellen möchten, dass Daten vorhanden sind:
+  // Bereits geladene Daten werden wiederverwendet, ansonsten werden sie geladen.
+  if (itemsLoaded.value) return Promise.resolve()
+  return loadAllItems()
 }
 
 
@@ -29,6 +69,7 @@ export async function addItem(newItem: Omit<Item, 'id'>) {
 
   await handleFetchError(res)
 
+  // Nach einer Änderung neu laden, damit der Store dem Backend entspricht.
   await loadAllItems()
 }
 

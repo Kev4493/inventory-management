@@ -230,8 +230,19 @@ import InputText from 'primevue/inputtext';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import Select from 'primevue/select';
-import { allItems, deleteItems, loadAllItems } from '@/stores/inventoryStore.ts';
-import { getEmployeeNameById, loadAllEmployees } from '@/stores/employeeStore.ts';
+import {
+  allItems,
+  deleteItems,
+  ensureItemsLoaded,
+  itemsError,
+  itemsLoading,
+} from '@/stores/inventoryStore.ts';
+import {
+  employeesError,
+  employeesLoading,
+  ensureEmployeesLoaded,
+  getEmployeeNameById,
+} from '@/stores/employeeStore.ts';
 import Button from 'primevue/button';
 import Toolbar from 'primevue/toolbar';
 import ItemDialog from '@/components/ItemDialog.vue';
@@ -240,13 +251,14 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 
-const loading = ref(false);
-const error = ref<string | null>(null);
 const selectedProducts = ref<Item[]>([]);
 const openCreateModal = ref(false);
 const openEditModal = ref(false);
 const confirm = useConfirm();
 const toast = useToast();
+
+const loading = computed(() => itemsLoading.value || employeesLoading.value);
+const error = computed(() => itemsError.value ?? employeesError.value);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -305,21 +317,10 @@ function handleItemUpdated() {
 }
 
 onMounted(async () => {
-  loading.value = true;
-  error.value = null;
-
   try {
-    // Beide API-Requests gleichzeitig starten (parallel, nicht nacheinander)
-    // Promise.all wartet bis BEIDE fertig sind, bevor es weitergeht
-    await Promise.all([loadAllItems(), loadAllEmployees()]);
-  } catch (e: unknown) {
-    // Falls einer der Requests fehlschlägt, Fehlermeldung speichern
-    // e?.message nimmt die Fehlermeldung des Servers, falls vorhanden
-    error.value = e instanceof Error ? e.message : 'Konnte Daten nicht laden';
-    // finally läuft IMMER – egal ob Erfolg oder Fehler
-    // Ladezustand deaktivieren, damit die Tabelle oder der Fehler angezeigt wird
-  } finally {
-    loading.value = false;
+    await Promise.all([ensureItemsLoaded(), ensureEmployeesLoaded()]);
+  } catch {
+    // Der jeweilige Store stellt die Fehlermeldung für die View bereit.
   }
 });
 

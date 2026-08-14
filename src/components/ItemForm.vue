@@ -109,7 +109,11 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { addItem, updateItem } from '@/stores/inventoryStore.ts';
 import type { Item } from '@/types/item.ts';
-import { allEmployees, loadAllEmployees } from '@/stores/employeeStore.ts';
+import {
+  allEmployees,
+  employeesLoading,
+  ensureEmployeesLoaded,
+} from '@/stores/employeeStore.ts';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import InputNumber from 'primevue/inputnumber';
@@ -183,19 +187,13 @@ const locations = ref([
 ]);
 
 const isSaving = ref(false);
-const loading = ref(true);
-const error = ref<string | null>(null);
+const loading = employeesLoading;
 
 onMounted(async () => {
-  loading.value = true;
-  error.value = null;
-
   try {
-    await loadAllEmployees();
-  } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Konnte Mitarbeiter nicht laden';
-  } finally {
-    loading.value = false;
+    await ensureEmployeesLoaded();
+  } catch {
+    // Der Store hält den Fehlerzustand; das Formular bleibt weiterhin bedienbar.
   }
 });
 
