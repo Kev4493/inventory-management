@@ -1,0 +1,18 @@
+$fontBasePath: './Fonts';
+
+@font-face {
+  font-family: 'ChillaxBold';
+  font-style: normal;
+  font-weight: 700;
+  src: local(''), url('#{$fontBasePath}/Chillax-Bold.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ChillaxRegular';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''), url('#{$fontBasePath}/Chillax-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
