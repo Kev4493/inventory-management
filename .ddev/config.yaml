@@ -1,5 +1,5 @@
 type: symfony
-docroot: public
+docroot: apps/backend/public
 php_version: "8.3"
 webserver_type: nginx-fpm
 xdebug_enabled: false
@@ -10,6 +10,9 @@ database:
     version: "10.11"
 use_dns_when_possible: true
 composer_version: "2"
+composer_root: apps/backend
+working_dir:
+    web: /var/www/html/apps/backend
 web_environment: []
 corepack_enable: false
 #host_db_port: "33066"

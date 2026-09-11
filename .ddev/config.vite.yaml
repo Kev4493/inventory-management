@@ -4,6 +4,7 @@ additional_hostnames:
 web_environment:
   - VITE_SERVER_URI=https://vite.inventory-management.ddev.site
   - VITE_PACKAGE_MANAGER=npm
+  - VITE_API_PROXY_TARGET=http://127.0.0.1
 
 # Enable these lines if you want to expose the vite port to the host system
 # Note that this means that only one ddev project with vite can be run at a time

@@ -1,6 +1,6 @@
 <template>
   <div class="app-layout">
-    <Sidebar></Sidebar>
+    <AppSidebar></AppSidebar>
     <Toast position="top-right" />
     <main class="content">
       <RouterView />
@@ -9,9 +9,9 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import Toast from 'primevue/toast'
-import Sidebar from '@/components/Sidebar.vue'
+import { RouterView } from 'vue-router';
+import Toast from 'primevue/toast';
+import AppSidebar from '@/components/AppSidebar.vue';
 </script>
 
 <style scoped lang="scss">

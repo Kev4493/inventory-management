@@ -11,6 +11,9 @@
 
 # Preferred package manager can be specified via VITE_PACKAGE_MANAGER environment variable in config.vite.yaml
 PACKAGE_MANAGER="${VITE_PACKAGE_MANAGER:-npm}"
+FRONTEND_DIR="/var/www/html/apps/frontend"
+
+cd "$FRONTEND_DIR" || exit 1
 
 COMMAND="${1:-dev}"
 OPTIONS=$@
