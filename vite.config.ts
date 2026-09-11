@@ -27,7 +27,7 @@ export default defineConfig({
     port: 5173, // Frontend läuft hier
     proxy: {
       '/api': {
-        target: 'http://inventory-backend.ddev.site:33000', // Backend-Port
+        target: 'http://inventory-management.ddev.site:33000', // Backend-Port
         changeOrigin: true,
       }
     },
