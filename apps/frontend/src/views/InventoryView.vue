@@ -91,6 +91,27 @@
         </template>
       </Column>
 
+      <Column header="Bild" style="width: 6rem">
+        <template #body="{ data }">
+          <img
+            v-if="data.imageUrl"
+            :src="data.imageUrl"
+            :alt="`Produktbild von ${data.name}`"
+            class="itemThumbnail"
+            width="48"
+            height="48"
+          />
+          <span
+            v-else
+            class="itemThumbnail itemThumbnailPlaceholder"
+            role="img"
+            aria-label="Kein Produktbild"
+          >
+            <i class="pi pi-image" aria-hidden="true"></i>
+          </span>
+        </template>
+      </Column>
+
       <Column
         field="name"
         :header="$t('itemForm.label.productName')"
@@ -379,5 +400,21 @@ const confirmDelete = () => {
 
 :deep(.filterField) {
   width: 100%;
+}
+
+.itemThumbnail {
+  display: block;
+  width: 100px;
+  height: 100px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.itemThumbnailPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--p-content-border-color);
+  color: var(--p-text-muted-color);
 }
 </style>
