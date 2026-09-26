@@ -12,6 +12,7 @@
 /.codex
 /.idea/
 *.iml
+/Codex
 
 # Logs
 logs

@@ -8,4 +8,5 @@ export type Item = {
   personId: number | null;
   purchaseDate: number;
   notes: string | null;
+  imageUrl: string | null;
 };

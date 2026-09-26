@@ -60,12 +60,23 @@ export function ensureItemsLoaded(): Promise<void> {
 }
 
 
-export async function addItem(newItem: Omit<Item, 'id'>) {
-  const res = await fetch ('/api/items', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newItem),
-  });
+type ItemInput = Omit<Item, 'id' | 'imageUrl'>
+
+export async function addItem(newItem: ItemInput, image: File | null = null) {
+  let body: BodyInit
+  const headers: Record<string, string> = {}
+
+  if (image) {
+    const formData = new FormData()
+    appendItemFields(formData, newItem)
+    formData.append('image', image)
+    body = formData
+  } else {
+    headers['Content-Type'] = 'application/json'
+    body = JSON.stringify(newItem)
+  }
+
+  const res = await fetch('/api/items', { method: 'POST', headers, body })
 
   await handleFetchError(res)
 
@@ -73,7 +84,12 @@ export async function addItem(newItem: Omit<Item, 'id'>) {
   await loadAllItems()
 }
 
-export async function updateItem(id: number, item: Omit<Item, 'id'>) {
+export async function updateItem(
+  id: number,
+  item: ItemInput,
+  image: File | null = null,
+  removeImage = false,
+) {
   const res = await fetch(`/api/items/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -81,7 +97,28 @@ export async function updateItem(id: number, item: Omit<Item, 'id'>) {
   })
 
   await handleFetchError(res)
+
+  if (image) {
+    const formData = new FormData()
+    formData.append('image', image)
+    const imageRes = await fetch(`/api/items/${id}/image`, { method: 'POST', body: formData })
+    await handleFetchError(imageRes)
+  } else if (removeImage) {
+    const imageRes = await fetch(`/api/items/${id}/image`, { method: 'DELETE' })
+    await handleFetchError(imageRes)
+  }
+
   await loadAllItems()
+}
+
+function appendItemFields(formData: FormData, item: ItemInput): void {
+  formData.append('inventoryNumber', item.inventoryNumber)
+  formData.append('name', item.name)
+  formData.append('category', item.category)
+  formData.append('location', item.location)
+  if (item.personId !== null) formData.append('personId', String(item.personId))
+  formData.append('purchaseDate', String(item.purchaseDate))
+  if (item.notes !== null) formData.append('notes', item.notes)
 }
 
 export async function deleteItems(ids: number[]) {
