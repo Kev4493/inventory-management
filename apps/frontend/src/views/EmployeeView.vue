@@ -65,6 +65,34 @@
         selectionMode="multiple"
         headerStyle="width: 3rem"
       ></Column>
+      <!-- ===== Foto: gleicher Bildausschnitt wie im Drawer, ohne Foto die Initialen ===== -->
+      <Column
+        :header="$t('employeeForm.label.photo')"
+        style="width: 6rem"
+      >
+        <template #body="{ data }">
+          <Avatar
+            v-if="data.photoUrl"
+            :image="data.photoUrl"
+            :ariaLabel="$t('employeeDetail.photoAlt', { name: `${data.firstName} ${data.lastName}` })"
+            size="xlarge"
+            shape="circle"
+            :pt="{
+              image: {
+                class: 'object-cover',
+                style: { objectPosition: `50% ${data.photoPositionY}%` },
+              },
+            }"
+          />
+          <Avatar
+            v-else
+            :label="initialsOf(data)"
+            :ariaLabel="$t('employeeDetail.photoPlaceholder', { name: `${data.firstName} ${data.lastName}` })"
+            size="xlarge"
+            shape="circle"
+          />
+        </template>
+      </Column>
       <Column
         field="firstName"
         :header="$t('employeeForm.label.firstName')"
@@ -192,12 +220,18 @@ import EmployeeDetailDrawer from '@/components/EmployeeDetailDrawer.vue';
 import type { Employee } from '@/types/employee.ts';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
+import Avatar from 'primevue/avatar';
 import EmployeeDialog from '@/components/EmployeeDialog.vue';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 
 const { t } = useI18n();
+
+// Initialen für den Avatar in der Liste, wenn kein Foto hinterlegt ist
+function initialsOf(employee: Employee): string {
+  return `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`.toUpperCase();
+}
 const selectedEmployee = ref<Employee | null>(null);
 const isDrawerOpen = ref(false);
 const selectedEmployees = ref<Employee[]>([]);
