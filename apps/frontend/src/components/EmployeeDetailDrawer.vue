@@ -13,7 +13,7 @@
           v-if="employee.photoUrl"
           :src="employee.photoUrl"
           :alt="$t('employeeDetail.photoAlt', { name: `${employee.firstName} ${employee.lastName}` })"
-          class="block w-full aspect-photo overflow-hidden rounded-xl"
+          class="block w-full aspect-square overflow-hidden rounded-xl"
           imageClass="w-full h-full object-cover"
           :imageStyle="{ objectPosition: `50% ${employee.photoPositionY}%` }"
           preview

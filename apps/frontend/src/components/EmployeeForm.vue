@@ -74,7 +74,7 @@
             >
               {{ $t('employeeForm.photo.position') }}
             </label>
-            <div class="w-full max-w-md aspect-photo overflow-hidden rounded-xl">
+            <div class="w-full max-w-md aspect-square overflow-hidden rounded-xl">
               <Image
                 :src="previewUrl"
                 :alt="$t('employeeForm.photo.previewAlt')"
