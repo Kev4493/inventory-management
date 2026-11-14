@@ -39,7 +39,6 @@
             :chooseLabel="$t('employeeForm.photo.choose')"
             accept="image/jpeg,image/png,image/webp"
             :multiple="false"
-            :fileLimit="1"
             :maxFileSize="5242880"
             :invalidFileTypeMessage="$t('employeeForm.photo.invalidFileType', ['{0}'])"
             :invalidFileSizeMessage="$t('employeeForm.photo.invalidFileSize', ['{0}'])"
@@ -434,7 +433,7 @@ const emptyEmployee = (): EmployeeInput => ({
 const newEmployee = reactive<EmployeeInput>(emptyEmployee());
 const selectedPhoto = ref<File | null>(null);
 const removeExistingPhoto = ref(false);
-const fileUpload = ref<{ clear: () => void } | null>(null);
+const fileUpload = ref<{ clear: () => void; remove: (index: number) => void } | null>(null);
 
 // Fehler werden erst nach dem ersten Absenden angezeigt.
 const submitted = ref(false);
@@ -459,13 +458,21 @@ function showError(field: keyof typeof errors.value): boolean {
   return submitted.value && errors.value[field];
 }
 
+// FileUpload hängt neue Dateien an (z. B. per Drag & Drop), daher gilt immer die zuletzt
+// gewählte Datei. Ältere Einträge werden aus der Liste entfernt, damit nur ein Foto übrig bleibt.
 function onPhotoSelect(event: FileUploadSelectEvent) {
-  const file = (event.files as File[])[0];
-  if (!file) return;
+  const files = event.files as File[];
+  const file = files[files.length - 1];
+  // Ungültige Dateien landen nicht in files, dann bleibt die bisherige Auswahl bestehen.
+  if (!file || file === selectedPhoto.value) return;
 
   clearSelectedPhoto();
   selectedPhoto.value = file;
   removeExistingPhoto.value = false;
+
+  for (let i = files.length - 1; i > 0; i--) {
+    fileUpload.value?.remove(0);
+  }
 }
 
 function onPhotoRemove(event: { file: File }) {
