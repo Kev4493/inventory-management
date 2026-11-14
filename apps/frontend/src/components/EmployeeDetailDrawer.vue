@@ -18,12 +18,17 @@
           :imageStyle="{ objectPosition: `50% ${employee.photoPositionY}%` }"
           preview
         />
-        <Avatar
+        <!-- Ohne Foto: gleiche quadratische Fläche wie ein Foto, mit großen Initialen -->
+        <div
           v-else
-          :label="initials"
-          size="xlarge"
-          shape="circle"
-        />
+          class="w-full aspect-square"
+        >
+          <Avatar
+            :label="initials"
+            :dt="placeholderTokens"
+            :aria-label="$t('employeeDetail.photoPlaceholder', { name: `${employee.firstName} ${employee.lastName}` })"
+          />
+        </div>
 
         <div class="drawer__meta">
           <span class="drawer__metaTag">{{
@@ -152,6 +157,16 @@ function handleVisibleChange(visible: boolean) {
 }
 
 // Initialen für den Avatar, wenn kein Foto hinterlegt ist
+// Avatar füllt den quadratischen Fotorahmen aus, Eckenradius passend zu rounded-xl beim Foto
+const placeholderTokens = {
+  root: {
+    width: '100%',
+    height: '100%',
+    fontSize: '6rem',
+    borderRadius: '0.75rem',
+  },
+};
+
 const initials = computed(() =>
   `${props.employee?.firstName.charAt(0) ?? ''}${props.employee?.lastName.charAt(0) ?? ''}`.toUpperCase(),
 );

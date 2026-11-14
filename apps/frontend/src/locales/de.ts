@@ -21,6 +21,7 @@ const de = {
 
   employeeDetail: {
     photoAlt: 'Profilbild von {name}',
+    photoPlaceholder: 'Kein Profilbild von {name} hinterlegt',
   },
 
   // ===== Forms =====
