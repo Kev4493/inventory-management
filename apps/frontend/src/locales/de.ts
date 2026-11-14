@@ -11,6 +11,9 @@ const de = {
     title: 'Inventarliste',
     noItems: 'Keine Items im Inventar.',
     loading: 'Inventar wird geladen...',
+    imageColumn: 'Bild',
+    imageAlt: 'Produktbild von {name}',
+    noImage: 'Kein Produktbild',
   },
 
   employee: {

@@ -91,24 +91,27 @@
         </template>
       </Column>
 
-      <Column header="Bild" style="width: 6rem">
+      <!-- ===== Bild: runder Avatar wie in der Mitarbeiterliste, ohne Bild ein Icon ===== -->
+      <Column
+        :header="$t('inventory.imageColumn')"
+        style="width: 6rem"
+      >
         <template #body="{ data }">
-          <img
+          <Avatar
             v-if="data.imageUrl"
-            :src="data.imageUrl"
-            :alt="`Produktbild von ${data.name}`"
-            class="itemThumbnail"
-            width="48"
-            height="48"
+            :image="data.imageUrl"
+            :ariaLabel="$t('inventory.imageAlt', { name: data.name })"
+            size="xlarge"
+            shape="circle"
+            :pt="{ image: { class: 'object-cover' } }"
           />
-          <span
+          <Avatar
             v-else
-            class="itemThumbnail itemThumbnailPlaceholder"
-            role="img"
-            aria-label="Kein Produktbild"
-          >
-            <i class="pi pi-image" aria-hidden="true"></i>
-          </span>
+            icon="pi pi-image"
+            :ariaLabel="$t('inventory.noImage')"
+            size="xlarge"
+            shape="circle"
+          />
         </template>
       </Column>
 
@@ -265,6 +268,7 @@ import {
   getEmployeeNameById,
 } from '@/stores/employeeStore.ts';
 import Button from 'primevue/button';
+import Avatar from 'primevue/avatar';
 import Toolbar from 'primevue/toolbar';
 import ItemDialog from '@/components/ItemDialog.vue';
 import type { Item } from '@/types/item.ts';
@@ -400,21 +404,5 @@ const confirmDelete = () => {
 
 :deep(.filterField) {
   width: 100%;
-}
-
-.itemThumbnail {
-  display: block;
-  width: 100px;
-  height: 100px;
-  border-radius: 6px;
-  object-fit: contain;
-}
-
-.itemThumbnailPlaceholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed var(--p-content-border-color);
-  color: var(--p-text-muted-color);
 }
 </style>
