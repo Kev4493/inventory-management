@@ -19,6 +19,10 @@ const de = {
     loading: 'Mitarbeiter werden geladen...',
   },
 
+  employeeDetail: {
+    photoAlt: 'Profilbild von {name}',
+  },
+
   // ===== Forms =====
   form: {
     requiredHint: 'Pflichtfelder sind mit * markiert.',

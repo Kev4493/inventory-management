@@ -9,13 +9,20 @@
       <h1>{{ employee.firstName }} {{ employee.lastName }}</h1>
 
       <div class="drawer__profileSection">
-        <div class="drawer__profile">
-          <img
-            class="drawer__profileImg"
-            src="../assets/Images/examples/premium_photo-1682096259050-361e2989706d.avif"
-            :alt="`Profilbild von ${employee.firstName} ${employee.lastName}`"
-          />
-        </div>
+        <Image
+          v-if="employee.photoUrl"
+          :src="employee.photoUrl"
+          :alt="$t('employeeDetail.photoAlt', { name: `${employee.firstName} ${employee.lastName}` })"
+          class="block w-full h-72 overflow-hidden rounded-xl"
+          imageClass="w-full h-full object-cover"
+          preview
+        />
+        <Avatar
+          v-else
+          :label="initials"
+          size="xlarge"
+          shape="circle"
+        />
 
         <div class="drawer__meta">
           <span class="drawer__metaTag">{{
@@ -125,6 +132,8 @@ import Drawer from 'primevue/drawer';
 import type { Employee } from '@/types/employee.ts';
 import { allItems, ensureItemsLoaded } from '@/stores/inventoryStore.ts';
 import Card from 'primevue/card';
+import Image from 'primevue/image';
+import Avatar from 'primevue/avatar';
 
 const props = defineProps<{
   employee: Employee | null;
@@ -140,6 +149,11 @@ function handleVisibleChange(visible: boolean) {
     emit('close');
   }
 }
+
+// Initialen für den Avatar, wenn kein Foto hinterlegt ist
+const initials = computed(() =>
+  `${props.employee?.firstName.charAt(0) ?? ''}${props.employee?.lastName.charAt(0) ?? ''}`.toUpperCase(),
+);
 
 // Alle Items filtern, die diesem Mitarbeiter zugewiesen sind
 // computed reagiert automatisch wenn sich allItems oder employee ändert
@@ -162,20 +176,6 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-}
-
-.drawer__profile {
-  width: 100%;
-  height: 300px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.drawer__profileImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
 }
 
 .drawer__meta {
