@@ -12,4 +12,9 @@ export type Employee = {
   dateOfEntry: Date
   dateOfLeaving: Date | null
   notes: string | null;
+  // Kommt nur vom Server, null ohne Foto.
+  photoUrl: string | null;
 };
+
+// Felder, die das Formular an die API schickt (ohne die vom Server vergebenen Werte).
+export type EmployeeInput = Omit<Employee, 'id' | 'photoUrl'>;

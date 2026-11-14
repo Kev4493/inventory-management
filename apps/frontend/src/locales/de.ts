@@ -82,6 +82,20 @@ const de = {
       entryDate: 'Eintrittsdatum',
       exitDate: 'Austrittsdatum',
       notes: 'Anmerkungen',
+      photo: 'Foto',
+    },
+    // {0} wird von PrimeVue FileUpload durch den Dateinamen ersetzt.
+    photo: {
+      choose: 'Foto auswählen',
+      empty: 'Foto hierher ziehen oder oben auswählen.',
+      hint: 'JPEG, PNG oder WebP, maximal 5 MB.',
+      invalidFileType: '{0}: Bitte JPEG, PNG oder WebP auswählen.',
+      invalidFileSize: '{0}: Die Datei darf höchstens 5 MB groß sein.',
+      existingAlt: 'Vorhandenes Foto',
+      removeExisting: 'Vorhandenes Foto entfernen',
+      discardSelected: 'Ausgewähltes Foto verwerfen',
+      uploadFailedSummary: 'Foto nicht gespeichert',
+      uploadFailedDetail: 'Der Mitarbeiter wurde angelegt, das Foto konnte aber nicht hochgeladen werden: {0}',
     },
     placeholder: {
       chooseEmploymentType: 'Beschäftigungsart auswählen',

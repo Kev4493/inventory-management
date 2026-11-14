@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { Employee } from '@/types/employee.ts'
+import type { Employee, EmployeeInput } from '@/types/employee.ts'
 
 // Hier werden alle Employees gesammelt, die in der App hinzugefügt werden.
 // Jede Komponente kann auf diese Liste zugreifen – zentraler Datenspeicher.
@@ -61,7 +61,8 @@ export function ensureEmployeesLoaded(): Promise<void> {
 }
 
 
-export async function addEmployee(newEmployee: Omit<Employee, 'id'>) {
+// Gibt den angelegten Mitarbeiter zurück, damit danach z. B. ein Foto hochgeladen werden kann.
+export async function addEmployee(newEmployee: EmployeeInput): Promise<Employee> {
   const res = await fetch ('/api/employees', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -69,12 +70,15 @@ export async function addEmployee(newEmployee: Omit<Employee, 'id'>) {
   });
 
   await handleFetchError(res)
+  const created = (await res.json()) as Employee
 
   // Nach einer Änderung neu laden, damit der Store dem Backend entspricht.
   await loadAllEmployees()
+
+  return created
 }
 
-export async function updateEmployee(id: number, employee: Omit<Employee, 'id'>) {
+export async function updateEmployee(id: number, employee: EmployeeInput) {
   const res = await fetch(`/api/employees/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -85,6 +89,23 @@ export async function updateEmployee(id: number, employee: Omit<Employee, 'id'>)
   await loadAllEmployees()
 }
 
+
+export async function uploadEmployeePhoto(id: number, photo: File): Promise<void> {
+  const formData = new FormData()
+  formData.append('photo', photo)
+
+  const res = await fetch(`/api/employees/${id}/photo`, { method: 'POST', body: formData })
+
+  await handleFetchError(res)
+  await loadAllEmployees()
+}
+
+export async function deleteEmployeePhoto(id: number): Promise<void> {
+  const res = await fetch(`/api/employees/${id}/photo`, { method: 'DELETE' })
+
+  await handleFetchError(res)
+  await loadAllEmployees()
+}
 
 export async function deleteEmployees(ids: number[]) {
   if (ids.length === 0) return
