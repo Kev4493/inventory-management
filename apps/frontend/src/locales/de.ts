@@ -20,6 +20,18 @@ const de = {
   },
 
   // ===== Forms =====
+  form: {
+    requiredHint: 'Pflichtfelder sind mit * markiert.',
+    validation: {
+      required: 'Bitte ausfüllen.',
+      email: 'Bitte eine gültige E-Mail-Adresse eingeben.',
+    },
+    toast: {
+      errorSummary: 'Speichern fehlgeschlagen',
+      errorDetail: 'Die Änderungen konnten nicht gespeichert werden.',
+    },
+  },
+
   itemForm: {
     label: {
       inventoryNumber: 'Inventar-Nr.',
@@ -29,6 +41,18 @@ const de = {
       assigned: 'Zugewiesen an',
       purchaseDate: 'Anschaffungsjahr',
       notes: 'Anmerkungen',
+      image: 'Produktbild',
+    },
+    // {0} wird von PrimeVue FileUpload durch den Dateinamen ersetzt.
+    image: {
+      choose: 'Bild auswählen',
+      empty: 'Bild hierher ziehen oder oben auswählen.',
+      hint: 'JPEG, PNG oder WebP, maximal 5 MB.',
+      invalidFileType: '{0}: Bitte JPEG, PNG oder WebP auswählen.',
+      invalidFileSize: '{0}: Die Datei darf höchstens 5 MB groß sein.',
+      existingAlt: 'Vorhandenes Produktbild',
+      removeExisting: 'Vorhandenes Produktbild entfernen',
+      discardSelected: 'Ausgewähltes Bild verwerfen',
     },
     placeholder: {
       chooseCategory: 'Kategorie auswählen',
