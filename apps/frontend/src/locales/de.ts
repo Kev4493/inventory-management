@@ -100,6 +100,10 @@ const de = {
       discardSelected: 'Ausgewähltes Foto verwerfen',
       uploadFailedSummary: 'Foto nicht gespeichert',
       uploadFailedDetail: 'Der Mitarbeiter wurde angelegt, das Foto konnte aber nicht hochgeladen werden: {0}',
+      position: 'Bildausschnitt',
+      positionTop: 'oben',
+      positionBottom: 'unten',
+      previewAlt: 'Vorschau des Bildausschnitts',
     },
     placeholder: {
       chooseEmploymentType: 'Beschäftigungsart auswählen',

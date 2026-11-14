@@ -14,6 +14,8 @@ export type Employee = {
   notes: string | null;
   // Kommt nur vom Server, null ohne Foto.
   photoUrl: string | null;
+  // Vertikaler Bildausschnitt in Prozent (0 = oben, 100 = unten).
+  photoPositionY: number;
 };
 
 // Felder, die das Formular an die API schickt (ohne die vom Server vergebenen Werte).

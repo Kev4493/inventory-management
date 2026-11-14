@@ -62,6 +62,40 @@
           >
             {{ $t('employeeForm.photo.hint') }}
           </Message>
+
+          <!-- Bildausschnitt: Vorschau im selben Format wie im Drawer -->
+          <div
+            v-if="previewUrl"
+            class="flex flex-col gap-2"
+          >
+            <label
+              for="photoPosition"
+              class="font-medium"
+            >
+              {{ $t('employeeForm.photo.position') }}
+            </label>
+            <div class="w-full max-w-md aspect-photo overflow-hidden rounded-xl">
+              <Image
+                :src="previewUrl"
+                :alt="$t('employeeForm.photo.previewAlt')"
+                class="block w-full h-full"
+                imageClass="w-full h-full object-cover"
+                :imageStyle="{ objectPosition: `50% ${newEmployee.photoPositionY}%` }"
+              />
+            </div>
+            <div class="flex w-full max-w-md items-center gap-4">
+              <span class="text-sm">{{ $t('employeeForm.photo.positionTop') }}</span>
+              <Slider
+                id="photoPosition"
+                v-model="newEmployee.photoPositionY"
+                :min="0"
+                :max="100"
+                :aria-label="$t('employeeForm.photo.position')"
+                class="flex-1"
+              />
+              <span class="text-sm">{{ $t('employeeForm.photo.positionBottom') }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- ===== Vorname ===== -->
@@ -384,6 +418,7 @@ import Message from 'primevue/message';
 import Divider from 'primevue/divider';
 import FileUpload from 'primevue/fileupload';
 import Image from 'primevue/image';
+import Slider from 'primevue/slider';
 import type { FileUploadSelectEvent } from 'primevue/fileupload';
 
 const { t } = useI18n();
@@ -415,6 +450,9 @@ const departments = ref([
   { name: t('employeeForm.department.humanResources'), code: 'humanResources' },
 ]);
 
+// Standard-Bildausschnitt: Gesichter liegen meist im oberen Drittel.
+const DEFAULT_PHOTO_POSITION_Y = 25;
+
 const emptyEmployee = (): EmployeeInput => ({
   firstName: '',
   lastName: '',
@@ -427,6 +465,7 @@ const emptyEmployee = (): EmployeeInput => ({
   dateOfEntry: new Date(),
   dateOfLeaving: null,
   notes: null,
+  photoPositionY: DEFAULT_PHOTO_POSITION_Y,
 });
 
 // Objekt für ein neu hinzuzufügenden Mitarbeiter
@@ -469,15 +508,27 @@ function onPhotoSelect(event: FileUploadSelectEvent) {
   clearSelectedPhoto();
   selectedPhoto.value = file;
   removeExistingPhoto.value = false;
+  // Ein neues Foto braucht einen neuen Ausschnitt, der alte Wert passt meist nicht.
+  newEmployee.photoPositionY = DEFAULT_PHOTO_POSITION_Y;
 
   for (let i = files.length - 1; i > 0; i--) {
     fileUpload.value?.remove(0);
   }
 }
 
+// Bild für die Ausschnitt-Vorschau: neu gewähltes Foto, sonst das gespeicherte, sofern es nicht entfernt wird.
+const previewUrl = computed<string | null>(() => {
+  const objectUrl = (selectedPhoto.value as File & { objectURL?: string } | null)?.objectURL;
+  if (objectUrl) return objectUrl;
+  if (props.employee?.photoUrl && !removeExistingPhoto.value) return props.employee.photoUrl;
+  return null;
+});
+
 function onPhotoRemove(event: { file: File }) {
   if (event.file === selectedPhoto.value) {
     clearSelectedPhoto();
+    // Zurück zum gespeicherten Foto, also auch zu dessen gespeichertem Ausschnitt.
+    newEmployee.photoPositionY = props.employee?.photoPositionY ?? DEFAULT_PHOTO_POSITION_Y;
   }
 }
 
@@ -510,6 +561,7 @@ function resetForm(employee?: Employee | null) {
       dateOfEntry: new Date(employee.dateOfEntry),
       dateOfLeaving: employee.dateOfLeaving ? new Date(employee.dateOfLeaving) : null,
       notes: employee.notes,
+      photoPositionY: employee.photoPositionY,
     });
   } else {
     Object.assign(newEmployee, emptyEmployee());
