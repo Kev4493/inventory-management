@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Employee;
 use App\Repository\EmployeeRepository;
+use App\Service\ImageStorage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,22 +23,7 @@ class EmployeeController
     {
         $employees = $repo->findBy([], ['id' => 'DESC']);
 
-        $data = array_map(fn(Employee $e) => [
-            'id' => $e->getId(),
-            'firstName' => $e->getFirstName(),
-            'lastName' => $e->getLastName(),
-            'street' => $e->getStreet(),
-            'zipCode' => $e->getZipCode(),
-            'city' => $e->getCity(),
-            'typeOfEmployment' => $e->getTypeOfEmployment(),
-            'department' => $e->getDepartment(),
-            'emailAddress' => $e->getEmailAddress(),
-            'dateOfEntry' => $e->getDateOfEntry() ? $e->getDateOfEntry()->format('Y-m-d') : null,
-            'dateOfLeaving' => $e->getDateOfLeaving() ? $e->getDateOfLeaving()->format('Y-m-d') : null,
-            'notes' => $e->getNotes(),
-        ], $employees);
-
-        return new JsonResponse($data);
+        return new JsonResponse(array_map(fn(Employee $e) => $this->employeeData($e), $employees));
     }
 
     // POST /api/employees → nimmt die Daten vom Frontend entgegen und legt einen neuen Eintrag in der DB an.
@@ -81,23 +68,14 @@ class EmployeeController
 
         $employee->setNotes($data['notes'] ?? null);
 
+        if ($error = $this->applyPhotoPosition($employee, $data)) {
+            return $error;
+        }
+
         $em->persist($employee);
         $em->flush();
 
-        return new JsonResponse([
-            'id' => $employee->getId(),
-            'firstName' => $employee->getFirstName(),
-            'lastName' => $employee->getLastName(),
-            'street' => $employee->getStreet(),
-            'zipCode' => $employee->getZipCode(),
-            'city' => $employee->getCity(),
-            'typeOfEmployment' => $employee->getTypeOfEmployment(),
-            'department' => $employee->getDepartment(),
-            'emailAddress' => $employee->getEmailAddress(),
-            'dateOfEntry' => $employee->getDateOfEntry() ? $employee->getDateOfEntry()->format('Y-m-d') : null,
-            'dateOfLeaving' => $employee->getDateOfLeaving() ? $employee->getDateOfLeaving()->format('Y-m-d') : null,
-            'notes' => $employee->getNotes(),
-        ], 201);
+        return new JsonResponse($this->employeeData($employee), 201);
     }
 
     // PUT /api/employees/{id} → aktualisiert einen vorhandenen Mitarbeiter.
@@ -140,9 +118,98 @@ class EmployeeController
         $employee->setDateOfLeaving($dateOfLeaving);
         $employee->setNotes($data['notes'] ?? null);
 
+        if ($error = $this->applyPhotoPosition($employee, $data)) {
+            return $error;
+        }
+
         $em->flush();
 
-        return new JsonResponse([
+        return new JsonResponse($this->employeeData($employee));
+    }
+
+    // POST /api/employees/{id}/photo → speichert ein neues Foto und ersetzt ein vorhandenes.
+    #[Route('/employees/{id}/photo', methods: ['POST'])]
+    public function uploadEmployeePhoto(int $id, Request $request, EmployeeRepository $repo, EntityManagerInterface $em, ImageStorage $employeePhotoStorage): JsonResponse
+    {
+        $employee = $repo->find($id);
+        if (!$employee) {
+            return new JsonResponse(['error' => 'Mitarbeiter nicht gefunden.'], 404);
+        }
+
+        $upload = $request->files->get('photo');
+        if ($upload === null) {
+            return new JsonResponse(['error' => 'Bitte ein Foto auswählen.'], 400);
+        }
+
+        try {
+            $newFilename = $employeePhotoStorage->store($upload);
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse(['error' => $exception->getMessage()], 400);
+        }
+
+        $oldFilename = $employee->getPhotoFilename();
+        $employee->setPhotoFilename($newFilename);
+        try {
+            $em->flush();
+        } catch (\Throwable $exception) {
+            $employeePhotoStorage->remove($newFilename);
+            throw $exception;
+        }
+        $employeePhotoStorage->remove($oldFilename);
+
+        return new JsonResponse($this->employeeData($employee));
+    }
+
+    // GET /api/employees/{id}/photo → liefert das Foto aus.
+    #[Route('/employees/{id}/photo', methods: ['GET'])]
+    public function loadEmployeePhoto(int $id, EmployeeRepository $repo, ImageStorage $employeePhotoStorage): BinaryFileResponse|JsonResponse
+    {
+        $employee = $repo->find($id);
+        $response = $employee?->getPhotoFilename() !== null
+            ? $employeePhotoStorage->response($employee->getPhotoFilename())
+            : null;
+
+        return $response ?? new JsonResponse(['error' => 'Mitarbeiterfoto nicht gefunden.'], 404);
+    }
+
+    // DELETE /api/employees/{id}/photo → entfernt das Foto, der Mitarbeiter bleibt erhalten.
+    #[Route('/employees/{id}/photo', methods: ['DELETE'])]
+    public function deleteEmployeePhoto(int $id, EmployeeRepository $repo, EntityManagerInterface $em, ImageStorage $employeePhotoStorage): JsonResponse
+    {
+        $employee = $repo->find($id);
+        if (!$employee) {
+            return new JsonResponse(['error' => 'Mitarbeiter nicht gefunden.'], 404);
+        }
+
+        $oldFilename = $employee->getPhotoFilename();
+        $employee->setPhotoFilename(null);
+        $em->flush();
+        $employeePhotoStorage->remove($oldFilename);
+
+        return new JsonResponse($this->employeeData($employee));
+    }
+
+    // DELETE /api/employees/{id} → entfernt einen Employee aus der DB anhand der ID
+    #[Route('/employees/{id}', methods: ['DELETE'])]
+    public function deleteEmployee(int $id, EmployeeRepository $repo, EntityManagerInterface $em, ImageStorage $employeePhotoStorage): JsonResponse
+    {
+        $employee = $repo->find($id);
+
+        if (!$employee) {
+            return new JsonResponse(['error' => 'Employee not found'], 404);
+        }
+
+        $photoFilename = $employee->getPhotoFilename();
+        $em->remove($employee);
+        $em->flush();
+        $employeePhotoStorage->remove($photoFilename);
+
+        return new JsonResponse(null, 204);
+    }
+
+    private function employeeData(Employee $employee): array
+    {
+        return [
             'id' => $employee->getId(),
             'firstName' => $employee->getFirstName(),
             'lastName' => $employee->getLastName(),
@@ -155,23 +222,34 @@ class EmployeeController
             'dateOfEntry' => $employee->getDateOfEntry()?->format('Y-m-d'),
             'dateOfLeaving' => $employee->getDateOfLeaving()?->format('Y-m-d'),
             'notes' => $employee->getNotes(),
-        ]);
+            'photoUrl' => $this->photoUrl($employee),
+            'photoPositionY' => $employee->getPhotoPositionY(),
+        ];
     }
 
-    // DELETE /api/employees/{id} → entfernt einen Employee aus der DB anhand der ID
-    #[Route('/employees/{id}', methods: ['DELETE'])]
-    public function deleteEmployee(int $id, EmployeeRepository $repo, EntityManagerInterface $em): JsonResponse
+    // Übernimmt den optionalen Bildausschnitt. Fehlt das Feld, bleibt der bisherige Wert.
+    // Gibt bei ungültigem Wert die Fehlerantwort zurück, sonst null.
+    private function applyPhotoPosition(Employee $employee, array $data): ?JsonResponse
     {
-        $employee = $repo->find($id);
-
-        if (!$employee) {
-            return new JsonResponse(['error' => 'Employee not found'], 404);
+        if (!array_key_exists('photoPositionY', $data)) {
+            return null;
         }
 
-        $em->remove($employee);
-        $em->flush();
+        $position = $data['photoPositionY'];
+        if (!is_int($position) || $position < 0 || $position > 100) {
+            return new JsonResponse(['error' => 'photoPositionY muss eine ganze Zahl zwischen 0 und 100 sein.'], 400);
+        }
 
-        return new JsonResponse(null, 204);
+        $employee->setPhotoPositionY($position);
+
+        return null;
+    }
+
+    // Der Dateiname im Parameter v ändert sich bei jedem neuen Foto, damit der Browser-Cache nicht greift.
+    private function photoUrl(Employee $employee): ?string
+    {
+        return $employee->getPhotoFilename() === null
+            ? null
+            : '/api/employees/'.$employee->getId().'/photo?v='.rawurlencode($employee->getPhotoFilename());
     }
 }
-

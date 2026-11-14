@@ -50,6 +50,14 @@ class Employee
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $notes = null;
 
+    // Dateiname des Mitarbeiterfotos im Fotoverzeichnis, null ohne Foto.
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $photo_filename = null;
+
+    // Vertikaler Bildausschnitt in Prozent (0 = oben, 100 = unten), wird als object-position genutzt.
+    #[ORM\Column(type: Types::SMALLINT, options: ['default' => 25])]
+    private int $photo_position_y = 25;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -181,6 +189,30 @@ class Employee
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getPhotoFilename(): ?string
+    {
+        return $this->photo_filename;
+    }
+
+    public function setPhotoFilename(?string $photo_filename): static
+    {
+        $this->photo_filename = $photo_filename;
+
+        return $this;
+    }
+
+    public function getPhotoPositionY(): int
+    {
+        return $this->photo_position_y;
+    }
+
+    public function setPhotoPositionY(int $photo_position_y): static
+    {
+        $this->photo_position_y = $photo_position_y;
 
         return $this;
     }
