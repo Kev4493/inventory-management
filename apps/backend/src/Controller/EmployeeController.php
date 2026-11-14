@@ -68,6 +68,10 @@ class EmployeeController
 
         $employee->setNotes($data['notes'] ?? null);
 
+        if ($error = $this->applyPhotoPosition($employee, $data)) {
+            return $error;
+        }
+
         $em->persist($employee);
         $em->flush();
 
@@ -113,6 +117,10 @@ class EmployeeController
         $employee->setDateOfEntry($dateOfEntry);
         $employee->setDateOfLeaving($dateOfLeaving);
         $employee->setNotes($data['notes'] ?? null);
+
+        if ($error = $this->applyPhotoPosition($employee, $data)) {
+            return $error;
+        }
 
         $em->flush();
 
@@ -215,7 +223,26 @@ class EmployeeController
             'dateOfLeaving' => $employee->getDateOfLeaving()?->format('Y-m-d'),
             'notes' => $employee->getNotes(),
             'photoUrl' => $this->photoUrl($employee),
+            'photoPositionY' => $employee->getPhotoPositionY(),
         ];
+    }
+
+    // Übernimmt den optionalen Bildausschnitt. Fehlt das Feld, bleibt der bisherige Wert.
+    // Gibt bei ungültigem Wert die Fehlerantwort zurück, sonst null.
+    private function applyPhotoPosition(Employee $employee, array $data): ?JsonResponse
+    {
+        if (!array_key_exists('photoPositionY', $data)) {
+            return null;
+        }
+
+        $position = $data['photoPositionY'];
+        if (!is_int($position) || $position < 0 || $position > 100) {
+            return new JsonResponse(['error' => 'photoPositionY muss eine ganze Zahl zwischen 0 und 100 sein.'], 400);
+        }
+
+        $employee->setPhotoPositionY($position);
+
+        return null;
     }
 
     // Der Dateiname im Parameter v ändert sich bei jedem neuen Foto, damit der Browser-Cache nicht greift.
