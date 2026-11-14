@@ -50,6 +50,10 @@ class Employee
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $notes = null;
 
+    // Dateiname des Mitarbeiterfotos im Fotoverzeichnis, null ohne Foto.
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $photo_filename = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -181,6 +185,18 @@ class Employee
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getPhotoFilename(): ?string
+    {
+        return $this->photo_filename;
+    }
+
+    public function setPhotoFilename(?string $photo_filename): static
+    {
+        $this->photo_filename = $photo_filename;
 
         return $this;
     }
