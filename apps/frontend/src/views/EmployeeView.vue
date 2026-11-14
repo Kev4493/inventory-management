@@ -90,6 +90,7 @@
             :ariaLabel="$t('employeeDetail.photoPlaceholder', { name: `${data.firstName} ${data.lastName}` })"
             size="xlarge"
             shape="circle"
+            :dt="{ xl: { fontSize: '1.25rem' } }"
           />
         </template>
       </Column>
