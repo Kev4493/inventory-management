@@ -91,7 +91,7 @@
         </template>
       </Column>
 
-      <!-- ===== Bild: runder Avatar wie in der Mitarbeiterliste, ohne Bild ein Icon ===== -->
+      <!-- ===== Bild: abgerundetes Quadrat, ohne Bild ein Icon ===== -->
       <Column
         :header="$t('inventory.imageColumn')"
         style="width: 6rem"
@@ -102,15 +102,15 @@
             :image="data.imageUrl"
             :ariaLabel="$t('inventory.imageAlt', { name: data.name })"
             size="xlarge"
-            shape="circle"
-            :pt="{ image: { class: 'object-cover' } }"
+            shape="square"
+            :pt="{ root: { class: 'overflow-hidden' }, image: { class: 'object-cover' } }"
           />
           <Avatar
             v-else
             icon="pi pi-image"
             :ariaLabel="$t('inventory.noImage')"
             size="xlarge"
-            shape="circle"
+            shape="square"
           />
         </template>
       </Column>
