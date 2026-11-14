@@ -3,12 +3,11 @@ namespace App\Controller;
 
 use App\Entity\Item;
 use App\Repository\ItemRepository;
-use App\Service\ItemImageStorage;
+use App\Service\ImageStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 
 // Der Controller enthält die eigentliche Logik hinter den API-Endpunkten -
@@ -40,7 +39,7 @@ class ItemController
 
     // POST /api/items → nimmt die Daten vom Frontend entgegen und legt einen neuen Eintrag in der DB an.
     #[Route('/items', methods: ['POST'])]
-    public function createItem(Request $request, EntityManagerInterface $em, ItemImageStorage $images): JsonResponse
+    public function createItem(Request $request, EntityManagerInterface $em, ImageStorage $itemImageStorage): JsonResponse
     {
         $data = $this->requestData($request);
         if (!is_array($data)) {
@@ -64,7 +63,7 @@ class ItemController
 
         try {
             if (($upload = $request->files->get('image')) !== null) {
-                $item->setImageFilename($images->store($upload));
+                $item->setImageFilename($itemImageStorage->store($upload));
             }
         } catch (\InvalidArgumentException $exception) {
             return new JsonResponse(['error' => $exception->getMessage()], 400);
@@ -74,7 +73,7 @@ class ItemController
         try {
             $em->flush();
         } catch (\Throwable $exception) {
-            $images->remove($item->getImageFilename());
+            $itemImageStorage->remove($item->getImageFilename());
             throw $exception;
         }
 
@@ -116,7 +115,7 @@ class ItemController
     }
 
     #[Route('/items/{id}/image', methods: ['POST'])]
-    public function uploadItemImage(int $id, Request $request, ItemRepository $repo, EntityManagerInterface $em, ItemImageStorage $images): JsonResponse
+    public function uploadItemImage(int $id, Request $request, ItemRepository $repo, EntityManagerInterface $em, ImageStorage $itemImageStorage): JsonResponse
     {
         $item = $repo->find($id);
         if (!$item) {
@@ -129,7 +128,7 @@ class ItemController
         }
 
         try {
-            $newFilename = $images->store($upload);
+            $newFilename = $itemImageStorage->store($upload);
         } catch (\InvalidArgumentException $exception) {
             return new JsonResponse(['error' => $exception->getMessage()], 400);
         }
@@ -139,43 +138,29 @@ class ItemController
         try {
             $em->flush();
         } catch (\Throwable $exception) {
-            $images->remove($newFilename);
+            $itemImageStorage->remove($newFilename);
             throw $exception;
         }
-        $images->remove($oldFilename);
+        $itemImageStorage->remove($oldFilename);
 
         return new JsonResponse($this->itemData($item));
     }
 
     #[Route('/items/{id}/image', methods: ['GET'])]
-    public function loadItemImage(int $id, ItemRepository $repo, ItemImageStorage $images): BinaryFileResponse|JsonResponse
+    public function loadItemImage(int $id, ItemRepository $repo, ImageStorage $itemImageStorage): BinaryFileResponse|JsonResponse
     {
         $item = $repo->find($id);
         if (!$item || $item->getImageFilename() === null) {
             return new JsonResponse(['error' => 'Produktbild nicht gefunden.'], 404);
         }
 
-        $path = $images->path($item->getImageFilename());
-        if (!is_file($path)) {
-            return new JsonResponse(['error' => 'Produktbild nicht gefunden.'], 404);
-        }
+        $response = $itemImageStorage->response($item->getImageFilename());
 
-        $response = new BinaryFileResponse($path);
-        $mimeType = match (pathinfo($path, PATHINFO_EXTENSION)) {
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            'webp' => 'image/webp',
-            default => 'application/octet-stream',
-        };
-        $response->headers->set('Content-Type', $mimeType);
-        $response->headers->set('Cache-Control', 'public, max-age=3600');
-        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basename($path));
-
-        return $response;
+        return $response ?? new JsonResponse(['error' => 'Produktbild nicht gefunden.'], 404);
     }
 
     #[Route('/items/{id}/image', methods: ['DELETE'])]
-    public function deleteItemImage(int $id, ItemRepository $repo, EntityManagerInterface $em, ItemImageStorage $images): JsonResponse
+    public function deleteItemImage(int $id, ItemRepository $repo, EntityManagerInterface $em, ImageStorage $itemImageStorage): JsonResponse
     {
         $item = $repo->find($id);
         if (!$item) {
@@ -185,14 +170,14 @@ class ItemController
         $oldFilename = $item->getImageFilename();
         $item->setImageFilename(null);
         $em->flush();
-        $images->remove($oldFilename);
+        $itemImageStorage->remove($oldFilename);
 
         return new JsonResponse($this->itemData($item));
     }
 
     // DELETE /api/items/{id} → entfernt ein Inventar-Item aus der DB anhand der ID
     #[Route('/items/{id}', methods: ['DELETE'])]
-    public function deleteItem(int $id, ItemRepository $repo, EntityManagerInterface $em, ItemImageStorage $images): JsonResponse
+    public function deleteItem(int $id, ItemRepository $repo, EntityManagerInterface $em, ImageStorage $itemImageStorage): JsonResponse
     {
         $item = $repo->find($id);
 
@@ -203,7 +188,7 @@ class ItemController
         $imageFilename = $item->getImageFilename();
         $em->remove($item);
         $em->flush();
-        $images->remove($imageFilename);
+        $itemImageStorage->remove($imageFilename);
 
         return new JsonResponse(null, 204);
     }

@@ -2,9 +2,13 @@
 
 namespace App\Service;
 
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
-class ItemImageStorage
+// Speichert hochgeladene Bilder in einem Verzeichnis außerhalb von public/.
+// Wird in services.yaml je Einsatzzweck (Produktbilder, Mitarbeiterfotos) mit eigenem Verzeichnis konfiguriert.
+class ImageStorage
 {
     private const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -56,6 +60,23 @@ class ItemImageStorage
         return $this->directory.'/'.$filename;
     }
 
+    // Liefert das Bild zur Anzeige im Browser aus, oder null, wenn die Datei fehlt.
+    public function response(string $filename): ?BinaryFileResponse
+    {
+        $path = $this->path($filename);
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $response = new BinaryFileResponse($path);
+        $mimeType = array_search(pathinfo($path, PATHINFO_EXTENSION), self::MIME_TYPES, true);
+        $response->headers->set('Content-Type', $mimeType ?: 'application/octet-stream');
+        $response->headers->set('Cache-Control', 'public, max-age=3600');
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basename($path));
+
+        return $response;
+    }
+
     public function remove(?string $filename): void
     {
         if ($filename === null) {
@@ -64,7 +85,7 @@ class ItemImageStorage
 
         $path = $this->path($filename);
         if (is_file($path) && !unlink($path)) {
-            throw new \RuntimeException('Das alte Produktbild konnte nicht entfernt werden.');
+            throw new \RuntimeException('Die alte Bilddatei konnte nicht entfernt werden.');
         }
     }
 }
